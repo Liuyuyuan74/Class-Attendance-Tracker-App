@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "716842288054",
+    "project_id": "wpi-student-checkin",
+    "storage_bucket": "wpi-student-checkin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716842288054:android:99733bc2afb59d1fb93717",
+        "android_client_info": {
+          "package_name": "com.wpi.wpistudentcheckin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqERgjyhB-D9jngpX__l2tc5QdH1wqUaA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

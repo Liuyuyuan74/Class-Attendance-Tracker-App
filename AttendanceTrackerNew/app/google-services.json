@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "112053098132",
+    "project_id": "attendancetracker-bc4a5",
+    "storage_bucket": "attendancetracker-bc4a5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112053098132:android:e5e7a514a617d4bc73c681",
+        "android_client_info": {
+          "package_name": "com.wpi.attendancetracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBT2PetfqUybV7iDyYUb2xaDtGD2dMXfI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
