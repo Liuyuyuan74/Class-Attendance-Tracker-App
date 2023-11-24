@@ -78,12 +78,17 @@ class ClassReportActivity : AppCompatActivity() {
     private fun updateListView() {
         val studentList : ArrayList<String> = ArrayList()
         for ( key in studentAttendance.keys ) {
-            val student = key + " " + studentAttendance[key]
+            val student = getStudentString(key) + " " + studentAttendance[key]
             studentList.add(student)
         }
 
         listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, studentList)
         listView.invalidate()
+    }
+
+    private fun getStudentString(studentID : String) : String {
+        // get the student string from the map keyed by ID
+        return studentID
     }
 
     private fun runQueries() {
@@ -93,8 +98,18 @@ class ClassReportActivity : AppCompatActivity() {
 
         db.child("checkIns").get()
             .addOnSuccessListener { countAttendance(it.value as List<Any>) }
+
+        db.child("students").get()
+            .addOnSuccessListener { setStudents(it.value as List<Any>) }
     }
 
+    private fun setStudents(value : List<Any>) {
+        // format List<Map<String,String>> : studentID: Boolean
+        // Students students studentID name: String email: String major: String
+        // store all the students in a map keyed by studentID
+        dataElements++
+        checkUpdate()
+    }
     private fun setEnrollments(value : List<Any>) {
         // format List<Map<String,String>> : studentID: Boolean
         numStudents = value.size
@@ -121,7 +136,7 @@ class ClassReportActivity : AppCompatActivity() {
     }
 
     private fun checkUpdate() {
-        if (dataElements >= 2)
+        if (dataElements >= 3)
             updateView()
     }
 }
