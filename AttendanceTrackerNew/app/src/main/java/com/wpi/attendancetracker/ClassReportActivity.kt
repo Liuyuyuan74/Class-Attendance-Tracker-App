@@ -30,6 +30,9 @@ class ClassReportActivity : AppCompatActivity() {
         setContentView(R.layout.activity_class_report)
         pieChart = findViewById(R.id.pie_chart_view)
         listView = findViewById(R.id.student_list)
+
+        val passedClass = intent.extras!!.getString(packageName + ".classID") ?: ""
+        resetData(passedClass)
     }
 
     fun resetData(classID : String) {
