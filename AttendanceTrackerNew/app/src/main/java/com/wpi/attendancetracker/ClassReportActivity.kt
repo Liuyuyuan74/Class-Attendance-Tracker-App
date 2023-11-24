@@ -12,7 +12,10 @@ import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
 
-
+// To start the report for a given class ID:
+// val intent = Intent(this, ClassReportActivity.class)
+// intent.putExtra(ClassReportActivity.Companion.CLASS_ID, classID);
+// startActivity(newIntent);
 class ClassReportActivity : AppCompatActivity() {
     private lateinit var classID : String
     private lateinit var studentAttendance : HashMap<String, Int>
@@ -25,13 +28,17 @@ class ClassReportActivity : AppCompatActivity() {
     private lateinit var pieChart : PieChart
     private lateinit var listView : ListView
 
+    companion object {
+        const val CLASS_KEY = "com.wpi.attendancetracker.classID"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_class_report)
         pieChart = findViewById(R.id.pie_chart_view)
         listView = findViewById(R.id.student_list)
 
-        val passedClass = intent.extras!!.getString(packageName + ".classID") ?: ""
+        val passedClass = intent.extras!!.getString(CLASS_KEY) ?: ""
         resetData(passedClass)
     }
 
