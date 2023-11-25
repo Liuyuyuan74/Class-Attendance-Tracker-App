@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".checkin">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="#AB2B37"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButton2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom"
+                android:layout_weight="0"
+                android:backgroundTint="#AA2B37"
+                android:src="?android:attr/homeAsUpIndicator"
+                app:tint="@color/#FFFFFF"
+                android:tint="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:padding="10dp"
+                android:paddingStart="2dp"
+                android:text="Course 1"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="205dp"
+            android:text="Information about Course 1" />
+
+        <ImageButton
+            android:id="@+id/imageButton3"
+            android:layout_width="345dp"
+            android:layout_height="309dp"
+            android:layout_gravity="center"
+            android:backgroundTint="#FFFFFF"
+            android:scaleType="centerInside"
+            android:src="@drawable/check_mark_transparent_gif_4" />
+
+    </LinearLayout>
+
+</FrameLayout>
