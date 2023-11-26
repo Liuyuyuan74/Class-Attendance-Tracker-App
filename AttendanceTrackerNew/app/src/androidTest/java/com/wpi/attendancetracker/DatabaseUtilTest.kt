@@ -1,3 +1,5 @@
+package com.wpi.attendancetracker
+
 import com.google.firebase.database.FirebaseDatabase
 import com.wpi.attendancetracker.DatabaseUtil
 import org.junit.Assert.assertEquals

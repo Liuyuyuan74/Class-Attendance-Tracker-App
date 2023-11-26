@@ -6,7 +6,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 
+
 class DatabaseUtil {
+
 
     private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
 
@@ -49,6 +51,25 @@ class DatabaseUtil {
         })
     }
 
+    fun getAllStudents(callback: (List<Student?>?) -> Unit) {
+        val valueEventListener: ValueEventListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val list: MutableList<Student?> = ArrayList()
+                for (ds in dataSnapshot.children) {
+                    val yourClass: Student? = ds.getValue(Student::class.java)
+                    list.add(yourClass)
+                }
+                callback(list)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(null)
+            }
+        }
+        database.child("checkIns").addListenerForSingleValueEvent(valueEventListener)
+    }
+
+
     fun setClass(classID: String, className: String, professorID: String, schedule: String) {
         val classDetail = ClassDetail(className, professorID, schedule)
         database.child("classes").child(classID).setValue(classDetail)
@@ -86,6 +107,42 @@ class DatabaseUtil {
             }
         })
     }
+
+    fun getAllCheckIns(callback: (List<CheckIn?>?) -> Unit) {
+        val valueEventListener: ValueEventListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val list: MutableList<CheckIn?> = ArrayList<CheckIn?>()
+                for (ds in dataSnapshot.children) {
+                    val yourClass: CheckIn? = ds.getValue(CheckIn::class.java)
+                    list.add(yourClass)
+                }
+                callback(list)
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                callback(null)
+            }
+        }
+        database.child("checkIns").addListenerForSingleValueEvent(valueEventListener)
+    }
+
+//    fun getAllEnrollments(classID: String, callback: (List<Enrollment?>?) -> Unit) {
+//        val valueEventListener: ValueEventListener = object : ValueEventListener {
+//            override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                val list: MutableList<CheckIn?> = ArrayList<CheckIn?>()
+//                for (ds in dataSnapshot.children) {
+//                    val yourClass: CheckIn? = ds.getValue(CheckIn::class.java)
+//                    list.add(yourClass)
+//                }
+//                callback(list)
+//            }
+//
+//            override fun onCancelled(databaseError: DatabaseError) {
+//                callback(null)
+//            }
+//        }
+//        database.child("checkIns").addListenerForSingleValueEvent(valueEventListener)
+//    }
 
     fun setClassEnrollment(classID: String, studentID: String, enrolled: Boolean) {
         database.child("classEnrollments").child(classID).child(studentID).setValue(enrolled)
