@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".checkin">
+    tools:context=".StudentCheckin">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,8 +25,9 @@
                 android:layout_weight="0"
                 android:backgroundTint="#AA2B37"
                 android:src="?android:attr/homeAsUpIndicator"
-                app:tint="@color/#FFFFFF"
-                android:tint="#FFFFFF" />
+                app:tint="#FFFFFF"
+                android:tint="#FFFFFF"
+                tools:ignore="UseAppTint" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -58,4 +59,4 @@
 
     </LinearLayout>
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

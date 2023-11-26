@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val intent = Intent(this@MainActivity, CreateClass::class.java)
+        val intent = Intent(this@MainActivity, StudentCheckin::class.java)
         startActivity(intent)
     }
 }
