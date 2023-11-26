@@ -5,14 +5,19 @@ import com.wpi.attendancetracker.DatabaseUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.locks.ReentrantLock
 import org.junit.Assert as Assert1
 
 class DatabaseUtilTest {
+    val lock = Object()
+
     @Test
     fun testSetAndGetProfessor() {
         // Initialize the FirebaseUtil class
         val firebaseUtil = DatabaseUtil()
+        var done = false
 
         // Test data for the professor
         val professorID = "testProfId"
@@ -33,12 +38,22 @@ class DatabaseUtilTest {
             // Clean up test data from the test database
             FirebaseDatabase.getInstance().getReference("professors").child(professorID)
                 .removeValue()
+
+            done = true
+            synchronized(lock) { lock.notify() }
         }
+
+        synchronized(lock) {
+            lock.wait(5000)
+            assertTrue("Firebase never did anything", done)
+        }
+
     }
 
     @Test
     fun testGetAllCheckins() {
         val firebaseUtil = DatabaseUtil()
+        var done = false
         firebaseUtil.getAllCheckIns {
             assertNotNull(it)
             assertNotEquals(0, it!!.size)
@@ -50,6 +65,15 @@ class DatabaseUtilTest {
             } else {
                 println("it is null");
             }
+            done=true
+            synchronized(lock) { lock.notify() }
         }
+
+        synchronized(lock) {
+            lock.wait(5000)
+            assertTrue("Firebase never did anything", done)
+        }
+
+
     }
 }
