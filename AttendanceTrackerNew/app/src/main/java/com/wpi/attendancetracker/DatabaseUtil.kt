@@ -166,10 +166,29 @@ class DatabaseUtil {
 
     }
 
-    data class Professor(val name: String, val email: String, val department: String)
-    data class Student(val name: String, val email: String, val major: String)
-    data class ClassDetail(val className: String, val professorID: String, val schedule: String)
-    data class CheckIn(val studentID: String, val classID: String, val checkInTime: String)
+    data class Professor(
+        val name: String = "",
+        val email: String = "",
+        val department: String = ""
+    )
+
+    data class Student(
+        val name: String = "",
+        val email: String = "",
+        val major: String = ""
+    )
+
+    data class ClassDetail(
+        val className: String = "",
+        val professorID: String = "",
+        val schedule: String = ""
+    )
+
+    data class CheckIn(
+        val studentID: String = "",
+        val classID: String = "",
+        val checkInTime: String = ""
+    )
 
 }
 
