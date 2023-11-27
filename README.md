@@ -12,13 +12,13 @@ students
 studentID
 name: String
 email: String
-major: String
 3. Classes
 classes
 classID
 className: String
 professorID: String (reference to a professor)
-schedule: String or Timestamp
+startTime: Number
+startDay: Number
 4. Check-Ins
 checkIns
 checkInID
