@@ -1,14 +1,12 @@
 package com.wpi.attendancetracker
 
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.wpi.attendancetracker.DatabaseUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.util.concurrent.locks.ReentrantLock
-import org.junit.Assert as Assert1
 
 class DatabaseUtilTest {
     val lock = Object()
@@ -26,8 +24,19 @@ class DatabaseUtilTest {
         val department = "Test Department"
 
         // Set a professor in the test database
-        firebaseUtil.setProfessor(professorID, name, email, department)
+        done = false
+        firebaseUtil.setProfessor(professorID, name, email, department).addOnSuccessListener {
+            synchronized(lock) { done = true ; lock.notify() }
+        }.addOnFailureListener {
+            it.printStackTrace()
+            assertTrue("Error executing create: " + it.stackTraceToString(), false)
+        }
+        synchronized(lock) {
+            lock.wait(5000)
+        }
+        assertTrue("Nothing happened", done)
 
+        done = false
         // Retrieve the professor from the test database
         firebaseUtil.getProfessor(professorID) { professor ->
             // Assertions to ensure the data is as expected
@@ -36,8 +45,8 @@ class DatabaseUtilTest {
             assertEquals(department, professor?.department)
 
             // Clean up test data from the test database
-            FirebaseDatabase.getInstance().getReference("professors").child(professorID)
-                .removeValue()
+            FirebaseFirestore.getInstance().collection("professors").document(professorID)
+                .delete()
 
             done = true
             synchronized(lock) { lock.notify() }

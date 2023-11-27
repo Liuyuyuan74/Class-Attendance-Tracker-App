@@ -9,9 +9,6 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.google.firebase.Firebase
-import com.google.firebase.FirebaseApp
-import com.google.firebase.database.database
 
 // To start the report for a given class ID:
 // val intent = Intent(this, ClassReportActivity.class)
@@ -37,7 +34,6 @@ class ClassReportActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
         dbUtil = DatabaseUtil()
 
         setContentView(R.layout.activity_class_report)
