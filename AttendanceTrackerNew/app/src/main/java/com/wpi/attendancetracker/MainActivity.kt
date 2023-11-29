@@ -32,12 +32,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val intent = Intent(this@MainActivity, CreateClass::class.java)
+        val intent = Intent(this@MainActivity, RoleSelector::class.java)
         startActivity(intent)
 
-        val reportIntent = Intent(this@MainActivity, ClassReportActivity::class.java)
-        reportIntent.putExtra(ClassReportActivity.CLASS_KEY, "VcFBzK4fFnzD3PZ1OrO8");
-        startActivity(reportIntent);
+//        val reportIntent = Intent(this@MainActivity, ClassReportActivity::class.java)
+//        reportIntent.putExtra(ClassReportActivity.CLASS_KEY, "VcFBzK4fFnzD3PZ1OrO8");
+//        startActivity(reportIntent);
 
     }
 }
