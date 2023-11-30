@@ -1,5 +1,6 @@
 package com.wpi.attendancetracker
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
 import com.google.common.reflect.ClassPath
 import com.google.firebase.Firebase
@@ -49,6 +50,7 @@ class DatabaseUtil {
         val classDetail = ClassDetail(className, professorID, schedule)
         return database.collection("classes").document(classID).set(classDetail)
     }
+    
     fun getAllClasses(callback: (List<ClassItem?>?) -> Unit) {
         database.collection("classes").get().addOnSuccessListener { documents ->
             val classItems = documents.mapNotNull { doc ->
@@ -60,6 +62,10 @@ class DatabaseUtil {
         }.addOnFailureListener {
             callback(null)
         }
+    }
+    
+    fun setClassInfo(classInfo: ClassInfo) : Task<Void> {
+        return database.collection("classes_info").document(classInfo.classID).set(classInfo)
     }
 
     fun setClassInfo(classInfo: ClassPath.ClassInfo) : Task<Void> {
@@ -152,7 +158,6 @@ class DatabaseUtil {
         val classID: String = "",
         val checkInTime: Date = Date()
     )
-
 }
 
 class ClassInfo(
@@ -168,3 +173,15 @@ class ClassInfo(
     var address:String?=null
 }
 
+class ClassInfo(
+    val className: String = "",
+    val classID: String = "",
+    val time: Date = Date(),
+    val isOpenSelectLocation: Boolean=false,
+    val   isOpenTracking: Boolean=false,
+    val isOpenUsingQr: Boolean=false,
+    val isOpenOtherTechnique: Boolean=false
+){
+    var location: LatLng?=null
+    var address:String?=null
+}

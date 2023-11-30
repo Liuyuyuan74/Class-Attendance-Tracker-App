@@ -35,6 +35,7 @@ class Student : AppCompatActivity() {
             startActivity(reportIntent)
         }
     }
+
     companion object {
         val EMAIL_KEY: String? = null
     }

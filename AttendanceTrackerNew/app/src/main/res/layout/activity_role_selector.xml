@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,24 +5,47 @@
     android:layout_height="match_parent"
     tools:context=".RoleSelector">
 
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter Email"
+        android:inputType="textEmailAddress"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonTeacher"/>
+
     <Button
         android:id="@+id/buttonTeacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Teacher"
+        android:enabled="false"
         app:layout_constraintBottom_toTopOf="@+id/buttonStudent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/emailEditText" />
 
     <Button
         android:id="@+id/buttonStudent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Student"
+        android:enabled="false"
         app:layout_constraintTop_toBottomOf="@+id/buttonTeacher"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
+        android:id="@+id/buttonCreateClass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CreateClass"
+        app:layout_constraintBottom_toTopOf="@+id/buttonStudent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonTeacher" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

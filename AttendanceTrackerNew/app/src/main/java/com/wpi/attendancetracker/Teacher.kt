@@ -8,4 +8,8 @@ class Teacher : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teacher)
     }
+
+    companion object {
+        val EMAIL_KEY: String? = null
+    }
 }
