@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.firestore.FirebaseFirestore
 import android.util.Log
 
 class Student : AppCompatActivity() {
@@ -14,24 +13,20 @@ class Student : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student)
 
-        val db = FirebaseFirestore.getInstance()
+        val databaseUtil = DatabaseUtil()
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewClasses)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        db.collection("classes")
-            .get()
-            .addOnSuccessListener { documents ->
-                val classItems = documents.mapNotNull { doc ->
-                    doc.getString("className")?.let { name ->
-                        ClassItem(name)
-                    }
-                }
-                recyclerView.adapter = ClassesAdapter(classItems)
+
+        databaseUtil.getAllClasses { classItems ->
+            if (classItems != null) {
+                val nonNullClassItems = classItems.filterNotNull()
+                recyclerView.adapter = ClassesAdapter(nonNullClassItems)
+            } else {
+                Log.w("Student", "Error getting class items")
             }
-            .addOnFailureListener { exception ->
-                Log.w("Student", "Error getting documents: ", exception)
-            }
+        }
 
         val btnGoToReport = findViewById<Button>(R.id.btnGoToReport)
         btnGoToReport.setOnClickListener {

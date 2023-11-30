@@ -47,6 +47,18 @@ class DatabaseUtil {
         val classDetail = ClassDetail(className, professorID, schedule)
         return database.collection("classes").document(classID).set(classDetail)
     }
+    fun getAllClasses(callback: (List<ClassItem?>?) -> Unit) {
+        database.collection("classes").get().addOnSuccessListener { documents ->
+            val classItems = documents.mapNotNull { doc ->
+                doc.getString("className")?.let { name ->
+                    ClassItem(name) // 确保ClassItem与您的实际数据结构匹配
+                }
+            }
+            callback(classItems)
+        }.addOnFailureListener {
+            callback(null)
+        }
+    }
 
     fun getClass(classID: String, callback: (ClassDetail?) -> Unit) {
         database.collection("classes").document(classID).get().addOnSuccessListener {
