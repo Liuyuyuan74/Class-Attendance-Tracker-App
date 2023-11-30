@@ -12,9 +12,14 @@ class RoleSelector : AppCompatActivity() {
 
         val buttonTeacher = findViewById<Button>(R.id.buttonTeacher)
         val buttonStudent = findViewById<Button>(R.id.buttonStudent)
+        val buttonCreateClass = findViewById<Button>(R.id.buttonCreateClass)
 
         buttonTeacher.setOnClickListener {
             val intent = Intent(this, Teacher::class.java)
+            startActivity(intent)
+        }
+        buttonCreateClass.setOnClickListener {
+            val intent = Intent(this, CreateClass::class.java)
             startActivity(intent)
         }
 
