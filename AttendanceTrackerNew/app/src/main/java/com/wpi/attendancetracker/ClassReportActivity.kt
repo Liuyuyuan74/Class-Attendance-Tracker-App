@@ -9,8 +9,6 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.google.firebase.Firebase
-import com.google.firebase.database.database
 
 // To start the report for a given class ID:
 // val intent = Intent(this, ClassReportActivity.class)
@@ -27,13 +25,17 @@ class ClassReportActivity : AppCompatActivity() {
 
     private lateinit var pieChart : PieChart
     private lateinit var listView : ListView
+    private lateinit var dbUtil : DatabaseUtil
 
     companion object {
         const val CLASS_KEY = "com.wpi.attendancetracker.classID"
+        const val NUM_QUERIES = 2
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dbUtil = DatabaseUtil()
+
         setContentView(R.layout.activity_class_report)
         pieChart = findViewById(R.id.pie_chart_view)
         listView = findViewById(R.id.student_list)
@@ -42,7 +44,7 @@ class ClassReportActivity : AppCompatActivity() {
         resetData(passedClass)
     }
 
-    fun resetData(classID : String) {
+    private fun resetData(classID : String) {
         this.classID = classID
         numStudents = 0
         numClasses = 0
@@ -92,24 +94,21 @@ class ClassReportActivity : AppCompatActivity() {
     }
 
     private fun runQueries() {
-        val db = Firebase.database.reference
-        db.child("enrollments").child(classID).get()
-            .addOnSuccessListener { setEnrollments(it.value as List<Any>) }
-
-        db.child("checkIns").get()
-            .addOnSuccessListener { countAttendance(it.value as List<Any>) }
-
-        db.child("students").get()
-            .addOnSuccessListener { setStudents(it.value as List<Any>) }
+//        db.child("enrollments").child(classID).get()
+//            .addOnSuccessListener { setEnrollments(it.value as List<Any>) }
+        //dbUtil.getAllEnrollments( classID, { setEnrollments(it) } )
+        dbUtil.getAllCheckIns { countAttendance(it) }
+        dbUtil.getAllStudents { setStudents(it) }
     }
 
-    private fun setStudents(value : List<Any>) {
+    private fun setStudents(value : List<DatabaseUtil.Student?>?) {
         // format List<Map<String,String>> : studentID: Boolean
         // Students students studentID name: String email: String major: String
         // store all the students in a map keyed by studentID
         dataElements++
         checkUpdate()
     }
+
     private fun setEnrollments(value : List<Any>) {
         // format List<Map<String,String>> : studentID: Boolean
         numStudents = value.size
@@ -117,18 +116,20 @@ class ClassReportActivity : AppCompatActivity() {
         checkUpdate()
     }
 
-    private fun countAttendance(values : List<Any>) {
+    private fun countAttendance(values : List<DatabaseUtil.CheckIn?>?) {
         // format List<Map<String,Object>> {
         // studentID : String
         // classID : String
         // checkInTime : Timestamp
-        for ( value in values ) {
-            val map : Map<String, Any> = value as Map<String, Any>
-            if ( classID.equals(map.get("classID"))) {
-                val studentID : String = map.get("studentID") as String;
-                var classCount = studentAttendance.get(studentID) ?: 0
-                classCount++
-                studentAttendance[studentID] = classCount
+        if (values != null) {
+            for (value in values) {
+                if (value != null) {
+                    if (classID.equals(value.classID)) {
+                        var classCount = studentAttendance.get(value.studentID) ?: 0
+                        classCount++
+                        studentAttendance[value.studentID] = classCount
+                    }
+                }
             }
         }
         dataElements++;
@@ -136,7 +137,7 @@ class ClassReportActivity : AppCompatActivity() {
     }
 
     private fun checkUpdate() {
-        if (dataElements >= 3)
+        if (dataElements >= NUM_QUERIES)
             updateView()
     }
 }

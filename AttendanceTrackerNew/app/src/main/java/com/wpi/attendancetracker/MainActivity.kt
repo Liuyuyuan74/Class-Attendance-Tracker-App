@@ -18,6 +18,8 @@ import com.wpi.attendancetracker.ui.theme.AttendanceTrackerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
+
         setContent {
             AttendanceTrackerTheme {
                 // A surface container using the 'background' color from the theme
@@ -30,8 +32,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val intent = Intent(this@MainActivity, StudentCheckin::class.java)
+        val intent = Intent(this@MainActivity, RoleSelector::class.java)
         startActivity(intent)
+
+//        val reportIntent = Intent(this@MainActivity, ClassReportActivity::class.java)
+//        reportIntent.putExtra(ClassReportActivity.CLASS_KEY, "VcFBzK4fFnzD3PZ1OrO8");
+//        startActivity(reportIntent);
+
     }
 }
 
