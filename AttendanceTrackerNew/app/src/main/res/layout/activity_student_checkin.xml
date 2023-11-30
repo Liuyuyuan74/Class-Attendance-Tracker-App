@@ -43,7 +43,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/textViewCourseInfo"
             android:layout_width="match_parent"
             android:layout_height="205dp"
             android:text="Information about Course 1" />
