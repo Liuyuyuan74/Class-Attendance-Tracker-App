@@ -1,10 +1,12 @@
 package com.wpi.attendancetracker
 
 import com.google.android.gms.tasks.Task
+import com.google.common.reflect.ClassPath
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.type.LatLng
 import java.util.Date
 
 class DatabaseUtil {
@@ -51,7 +53,7 @@ class DatabaseUtil {
         database.collection("classes").get().addOnSuccessListener { documents ->
             val classItems = documents.mapNotNull { doc ->
                 doc.getString("className")?.let { name ->
-                    ClassItem(name) // 确保ClassItem与您的实际数据结构匹配
+                    ClassItem(name)
                 }
             }
             callback(classItems)
@@ -60,6 +62,9 @@ class DatabaseUtil {
         }
     }
 
+    fun setClassInfo(classInfo: ClassPath.ClassInfo) : Task<Void> {
+        return database.collection("classes_info").document(classInfo.classID).set(classInfo)
+    }
     fun getClass(classID: String, callback: (ClassDetail?) -> Unit) {
         database.collection("classes").document(classID).get().addOnSuccessListener {
                 doc -> callback(doc.toObject(ClassDetail::class.java))
@@ -147,5 +152,19 @@ class DatabaseUtil {
         val classID: String = "",
         val checkInTime: Date = Date()
     )
+
+}
+
+class ClassInfo(
+    val className: String = "",
+    val classID: String = "",
+    val time: Date = Date(),
+    val isOpenSelectLocation: Boolean=false,
+    val   isOpenTracking: Boolean=false,
+    val isOpenUsingQr: Boolean=false,
+    val isOpenOtherTechnique: Boolean=false
+){
+    var location: LatLng?=null
+    var address:String?=null
 }
 
