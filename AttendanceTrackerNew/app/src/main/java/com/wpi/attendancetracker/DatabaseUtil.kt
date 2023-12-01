@@ -7,7 +7,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.google.type.LatLng
 import java.util.Date
 
 class DatabaseUtil {
@@ -65,10 +64,6 @@ class DatabaseUtil {
     }
     
     fun setClassInfo(classInfo: ClassInfo) : Task<Void> {
-        return database.collection("classes_info").document(classInfo.classID).set(classInfo)
-    }
-
-    fun setClassInfo(classInfo: ClassPath.ClassInfo) : Task<Void> {
         return database.collection("classes_info").document(classInfo.classID).set(classInfo)
     }
     fun getClass(classID: String, callback: (ClassDetail?) -> Unit) {
@@ -158,19 +153,6 @@ class DatabaseUtil {
         val classID: String = "",
         val checkInTime: Date = Date()
     )
-}
-
-class ClassInfo(
-    val className: String = "",
-    val classID: String = "",
-    val time: Date = Date(),
-    val isOpenSelectLocation: Boolean=false,
-    val   isOpenTracking: Boolean=false,
-    val isOpenUsingQr: Boolean=false,
-    val isOpenOtherTechnique: Boolean=false
-){
-    var location: LatLng?=null
-    var address:String?=null
 }
 
 class ClassInfo(
