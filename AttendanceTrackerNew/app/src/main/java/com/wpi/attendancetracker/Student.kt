@@ -21,8 +21,13 @@ class Student : AppCompatActivity() {
 
         databaseUtil.getAllClasses { classItems ->
             if (classItems != null) {
-                val nonNullClassItems = classItems.filterNotNull()
-                recyclerView.adapter = ClassesAdapter(nonNullClassItems)
+//                val studentID = "jdifao"
+//                val classID = "jdsfoiaje"
+//                val nonNullClassItems = classItems.filterNotNull()
+                val nonNullClassItems = classItems.filterNotNull().map { classItem ->
+                    ClassItem(classItem.className, classItem.studentId, classItem.classId)
+                }
+                recyclerView.adapter = ClassesAdapter(this, nonNullClassItems)
             } else {
                 Log.w("Student", "Error getting class items")
             }
