@@ -64,7 +64,7 @@ class DatabaseUtil {
     }
     
     fun setClassInfo(classInfo: ClassInfo) : Task<Void> {
-        return database.collection("classes_info").document(classInfo.classID).set(classInfo)
+        return database.collection("classes").document(classInfo.classID).set(classInfo)
     }
     fun getClass(classID: String, callback: (ClassDetail?) -> Unit) {
         database.collection("classes").document(classID).get().addOnSuccessListener {
