@@ -66,8 +66,7 @@ class DatabaseUtil {
         database.collection("classes").get().addOnSuccessListener { documents ->
             val classItems = documents.mapNotNull { doc ->
                 val className = doc.getString("className")
-                val studentId = doc.getString("studentId")
-//                val classId = doc.key.path.toString().drop(8)
+//                val studentId = doc.getString("studentId")
                 val classId = doc.id
                 if (className != null && classId != null) {
                     ClassItem(className, "empty", classId)

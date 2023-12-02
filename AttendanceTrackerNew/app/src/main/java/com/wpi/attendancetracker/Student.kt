@@ -13,6 +13,7 @@ class Student : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student)
 
+        val email = intent.getStringExtra(EMAIL_KEY)?: "default_email"
         val databaseUtil = DatabaseUtil()
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewClasses)
@@ -25,7 +26,7 @@ class Student : AppCompatActivity() {
 //                val classID = "jdsfoiaje"
 //                val nonNullClassItems = classItems.filterNotNull()
                 val nonNullClassItems = classItems.filterNotNull().map { classItem ->
-                    ClassItem(classItem.className, classItem.studentId, classItem.classId)
+                    ClassItem(classItem.className, email, classItem.classId)
                 }
                 recyclerView.adapter = ClassesAdapter(this, nonNullClassItems)
             } else {

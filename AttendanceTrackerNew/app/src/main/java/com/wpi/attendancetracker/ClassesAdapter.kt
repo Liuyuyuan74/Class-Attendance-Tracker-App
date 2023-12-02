@@ -30,10 +30,12 @@ class ClassesAdapter(private val context: Context, private val classList: List<C
         holder.buttonCheckIn.setOnClickListener {
             val studentId = classItem.studentId
             val classId = classItem.classId
+            val className = classItem.className
 
             val checkInIntent = Intent(context, Student_CheckIn::class.java)
             checkInIntent.putExtra("STUDENT_ID_KEY", studentId)
             checkInIntent.putExtra("CLASS_ID_KEY", classId)
+            checkInIntent.putExtra("CLASS_NAME_KEY", className)
             context.startActivity(checkInIntent)
         }
     }
