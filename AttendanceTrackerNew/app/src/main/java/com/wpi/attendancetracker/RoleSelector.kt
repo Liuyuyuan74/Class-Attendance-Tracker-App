@@ -16,7 +16,6 @@ class RoleSelector : AppCompatActivity() {
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
         val buttonTeacher = findViewById<Button>(R.id.buttonTeacher)
         val buttonStudent = findViewById<Button>(R.id.buttonStudent)
-        val buttonCreateClass = findViewById<Button>(R.id.buttonCreateClass)
 
         emailEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
@@ -36,15 +35,13 @@ class RoleSelector : AppCompatActivity() {
         })
 
         buttonTeacher.setOnClickListener {
-            val intent = Intent(this, Teacher::class.java)
+        /*    val intent = Intent(this, Teacher::class.java)
             intent.putExtra(Teacher.EMAIL_KEY, emailEditText.text.toString())
             startActivity(intent)
-        }
-        buttonCreateClass.setOnClickListener {
-            val intent = Intent(this, CreateClass::class.java)
+            */
+           val intent = Intent(this, CreateClass::class.java)
             startActivity(intent)
         }
-
         buttonStudent.setOnClickListener {
             val intent = Intent(this, Student::class.java)
             intent.putExtra(Student.EMAIL_KEY, emailEditText.text.toString())
