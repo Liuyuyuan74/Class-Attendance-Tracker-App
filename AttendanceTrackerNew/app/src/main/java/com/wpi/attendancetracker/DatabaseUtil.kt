@@ -50,11 +50,28 @@ class DatabaseUtil {
         return database.collection("classes").document(classID).set(classDetail)
     }
     
+//    fun getAllClasses(callback: (List<ClassItem?>?) -> Unit) {
+//        database.collection("classes").get().addOnSuccessListener { documents ->
+//            val classItems = documents.mapNotNull { doc ->
+//                doc.getString("className")?.let { name ->
+//                    ClassItem(name)
+//                }
+//            }
+//            callback(classItems)
+//        }.addOnFailureListener {
+//            callback(null)
+//        }
+//    }
     fun getAllClasses(callback: (List<ClassItem?>?) -> Unit) {
         database.collection("classes").get().addOnSuccessListener { documents ->
             val classItems = documents.mapNotNull { doc ->
-                doc.getString("className")?.let { name ->
-                    ClassItem(name)
+                val className = doc.getString("className")
+//                val studentId = doc.getString("studentId")
+                val classId = doc.id
+                if (className != null && classId != null) {
+                    ClassItem(className, "empty", classId)
+                } else {
+                    null
                 }
             }
             callback(classItems)
@@ -62,7 +79,6 @@ class DatabaseUtil {
             callback(null)
         }
     }
-    
     fun setClassInfo(classInfo: ClassInfo) : Task<Void> {
         return database.collection("classes").document(classInfo.classID).set(classInfo)
     }
