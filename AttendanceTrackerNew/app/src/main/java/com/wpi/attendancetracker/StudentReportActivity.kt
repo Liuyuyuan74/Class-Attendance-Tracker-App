@@ -26,7 +26,7 @@ class StudentReportActivity : AppCompatActivity() {
 
     // These are our data query results
     private var checkIns : List<DatabaseUtil.CheckIn?>? = null
-    private var classes : List<ClassInfo?>? = null
+    private var classes : List<DatabaseUtil.ClassInfo?>? = null
     private var enrollments : List<DatabaseUtil.Enrollment?>? = null
     private var totalCheckIns : Int = 0
     private var totalSessions : Int = 0
@@ -34,7 +34,7 @@ class StudentReportActivity : AppCompatActivity() {
     // these two maps are individual maps of clas to number of sessions and class to number of checkins
     private var classMap : HashMap<String, Int> = HashMap()
     private var checkInMap : HashMap<String, Int> = HashMap()
-    private var classDetailMap : HashMap<String, ClassInfo> = HashMap()
+    private var classDetailMap : HashMap<String, DatabaseUtil.ClassInfo> = HashMap()
     //private var studentMap : HashMap<String,DatabaseUtil.Student> = HashMap()
 
     companion object {
@@ -73,7 +73,7 @@ class StudentReportActivity : AppCompatActivity() {
         }
 
         // TODO: only count classes that we are enrolled in, but for now, all classes
-        val enrolledClasses : ArrayList<ClassInfo> = ArrayList()
+        val enrolledClasses : ArrayList<DatabaseUtil.ClassInfo> = ArrayList()
         this.classes!!.forEach {
             if (it != null) {
                 enrolledClasses.add(it)
@@ -153,7 +153,7 @@ class StudentReportActivity : AppCompatActivity() {
         checkUpdate()
     }
 
-    private fun setClasses(classes: List<ClassInfo?>?) {
+    private fun setClasses(classes: List<DatabaseUtil.ClassInfo?>?) {
         this.classes = classes
         dataElements++
         checkUpdate()

@@ -161,7 +161,7 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
             )
             Log.d(TAG, "classInfo: $classInfo")
             Log.d(TAG, "classInfo time: ${classInfo["time"]} ${classInfo["time"]?.javaClass}")
-            var classInfo1 = ClassInfo(
+            var classInfo1 = DatabaseUtil.ClassInfo(
                 className,
                 classID.toString(),
                 classTime,
