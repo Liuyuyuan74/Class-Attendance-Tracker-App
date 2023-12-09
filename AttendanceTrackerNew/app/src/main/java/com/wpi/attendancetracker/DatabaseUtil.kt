@@ -159,10 +159,10 @@ class DatabaseUtil {
         val className: String = "",
         val classID: String = "",
         val time: Date = Date(),
-        val isOpenSelectLocation: Boolean=false,
-        val isOpenTracking: Boolean=false,
-        val isOpenUsingQr: Boolean=false,
-        val isOpenOtherTechnique: Boolean=false
+        val openSelectLocation: Boolean=false,
+        val openTracking: Boolean=false,
+        val openUsingQr: Boolean=false,
+        val openOtherTechnique: Boolean=false
     ){
         var location: LatLng?=null
         var address:String?=null

@@ -29,7 +29,6 @@ import  com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.PlaceTypes
-import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import java.text.SimpleDateFormat
@@ -55,7 +54,7 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
     lateinit var sw_open_location: Switch
     lateinit var ll_select_location: LinearLayoutCompat
     lateinit var rl_location: RelativeLayout
-    lateinit var sw_activity_tracking: Switch
+    private lateinit var sw_activity_tracking: Switch
     lateinit var sw_using_qr: Switch
     lateinit var sw_other_technique: Switch
     lateinit var btn_set_class: Button
@@ -82,7 +81,7 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
                 // The user canceled the operation.
                 Log.i(TAG, "User canceled autocomplete")
             }
-        } as ActivityResultCallback<ActivityResult>)
+        })
 
 
     @SuppressLint("RestrictedApi")
@@ -153,10 +152,10 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
         // set our fields
         className = classInfo.className
         classTime = classInfo.time
-        isOpenSelectLocation = classInfo.isOpenSelectLocation
-        isOpenTracking = classInfo.isOpenTracking
-        isOpenUsingQr = classInfo.isOpenUsingQr
-        isOpenOtherTechnique = classInfo.isOpenOtherTechnique
+        isOpenSelectLocation = classInfo.openSelectLocation
+        isOpenTracking = classInfo.openTracking
+        isOpenUsingQr = classInfo.openUsingQr
+        isOpenOtherTechnique = classInfo.openOtherTechnique
 
 
         val classIdString = classInfo.classID
@@ -213,12 +212,12 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
             isOpenOtherTechnique
         )
         mDatabaseUtil.setClassInfo(classInfo1).addOnSuccessListener {
-            Log.d(
-                TAG,
-                "classInfo DocumentSnapshot successfully written!"
-            )
+            Log.d(TAG,"classInfo DocumentSnapshot successfully written!")
+            Toast.makeText(this, "Saved Class", Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener {
+            e -> Log.w(TAG, "classInfo Error writing document", e)
+            Toast.makeText(this, "Error Saving", Toast.LENGTH_SHORT).show()
         }
-            .addOnFailureListener { e -> Log.w(TAG, "classInfo Error writing document", e) }
     }
 
     private fun startAutocompleteIntent() {
