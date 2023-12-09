@@ -39,7 +39,8 @@ class RoleSelector : AppCompatActivity() {
             intent.putExtra(Teacher.EMAIL_KEY, emailEditText.text.toString())
             startActivity(intent)
             */
-           val intent = Intent(this, CreateClass::class.java)
+           val intent = Intent(this, Teacher::class.java)
+            intent.putExtra(Teacher.EMAIL_KEY, emailEditText.text.toString())
             startActivity(intent)
         }
         buttonStudent.setOnClickListener {
