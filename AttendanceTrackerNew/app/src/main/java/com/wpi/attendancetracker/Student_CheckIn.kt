@@ -24,7 +24,7 @@ class Student_CheckIn : AppCompatActivity() {
         binding.CheckInButton.setOnClickListener {
             val checkInTime = Date() // Current time
 
-            databaseUtil.setCheckIn(classId, studentId, classId, checkInTime)
+            databaseUtil.addCheckIn(studentId, classId, checkInTime)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Check-in successful", Toast.LENGTH_SHORT).show()
                 }

@@ -19,14 +19,13 @@ class Student : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewClasses)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-
         databaseUtil.getAllClasses { classItems ->
             if (classItems != null) {
 //                val studentID = "jdifao"
 //                val classID = "jdsfoiaje"
 //                val nonNullClassItems = classItems.filterNotNull()
                 val nonNullClassItems = classItems.filterNotNull().map { classItem ->
-                    ClassItem(classItem.className, email, classItem.classId)
+                    ClassItem(classItem.className, email, classItem.classID)
                 }
                 recyclerView.adapter = ClassesAdapter(this, nonNullClassItems)
             } else {
@@ -36,8 +35,8 @@ class Student : AppCompatActivity() {
 
         val btnGoToReport = findViewById<Button>(R.id.btnGoToReport)
         btnGoToReport.setOnClickListener {
-            val reportIntent = Intent(this, ClassReportActivity::class.java)
-            reportIntent.putExtra(ClassReportActivity.CLASS_KEY, "VcFBzK4fFnzD3PZ1OrO8")
+            val reportIntent = Intent(this, StudentReportActivity::class.java)
+            reportIntent.putExtra(StudentReportActivity.STUDENT_KEY, email)
             startActivity(reportIntent)
         }
     }

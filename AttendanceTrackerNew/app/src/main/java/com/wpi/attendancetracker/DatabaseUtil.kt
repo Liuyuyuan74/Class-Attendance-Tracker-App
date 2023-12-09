@@ -2,7 +2,6 @@ package com.wpi.attendancetracker
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.Task
-import com.google.common.reflect.ClassPath
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -44,10 +43,8 @@ class DatabaseUtil {
         }
     }
 
-
-    fun setClass(classID: String, className: String, professorID: String, schedule: String) : Task<Void> {
-        val classDetail = ClassDetail(className, professorID, schedule)
-        return database.collection("classes").document(classID).set(classDetail)
+    fun setClass(classInfo : ClassInfo) : Task<Void> {
+        return database.collection("classes").document(classInfo.classID).set(classInfo)
     }
     
 //    fun getAllClasses(callback: (List<ClassItem?>?) -> Unit) {
@@ -62,17 +59,10 @@ class DatabaseUtil {
 //            callback(null)
 //        }
 //    }
-    fun getAllClasses(callback: (List<ClassItem?>?) -> Unit) {
+    fun getAllClasses(callback: (List<ClassInfo?>?) -> Unit) {
         database.collection("classes").get().addOnSuccessListener { documents ->
             val classItems = documents.mapNotNull { doc ->
-                val className = doc.getString("className")
-//                val studentId = doc.getString("studentId")
-                val classId = doc.id
-                if (className != null && classId != null) {
-                    ClassItem(className, "empty", classId)
-                } else {
-                    null
-                }
+                doc.toObject(ClassInfo::class.java)
             }
             callback(classItems)
         }.addOnFailureListener {
@@ -82,9 +72,9 @@ class DatabaseUtil {
     fun setClassInfo(classInfo: ClassInfo) : Task<Void> {
         return database.collection("classes").document(classInfo.classID).set(classInfo)
     }
-    fun getClass(classID: String, callback: (ClassDetail?) -> Unit) {
+    fun getClass(classID: String, callback: (ClassInfo?) -> Unit) {
         database.collection("classes").document(classID).get().addOnSuccessListener {
-                doc -> callback(doc.toObject(ClassDetail::class.java))
+                doc -> callback(doc.toObject(ClassInfo::class.java))
         }.addOnFailureListener { callback(null) }
     }
 
@@ -113,41 +103,35 @@ class DatabaseUtil {
 
     }
 
-//    fun getAllEnrollments(classID: String, callback: (List<Enrollment?>?) -> Unit) {
-//        val valueEventListener: ValueEventListener = object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                val list: MutableList<CheckIn?> = ArrayList<CheckIn?>()
-//                for (ds in dataSnapshot.children) {
-//                    val yourClass: CheckIn? = ds.getValue(CheckIn::class.java)
-//                    list.add(yourClass)
-//                }
-//                callback(list)
-//            }
-//
-//            override fun onCancelled(databaseError: DatabaseError) {
-//                callback(null)
-//            }
-//        }
-//        database.child("checkIns").addListenerForSingleValueEvent(valueEventListener)
-//    }
-//
-//    fun setClassEnrollment(classID: String, studentID: String, enrolled: Boolean) {
-//        database.child("classEnrollments").child(classID).child(studentID).setValue(enrolled)
-//    }
-//
-//    fun getClassEnrollment(classID: String, callback: (Map<String, Boolean>?) -> Unit) {
-//        database.child("classEnrollments").child(classID).addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                val enrollments = snapshot.getValue(object : GenericTypeIndicator<Map<String, Boolean>>() {})
-//                callback(enrollments)
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                // Handle error
-//                callback(null)
-//            }
-//        })
-//    }
+    fun getCheckIns(studentEmail : String, callback: (List<CheckIn?>?) -> Unit) {
+        database.collection("checkIns").whereEqualTo("studentID", studentEmail).
+            get().addOnSuccessListener {
+                query -> callback(query.toObjects(CheckIn::class.java))
+        }.addOnFailureListener {
+            callback(null)
+        }
+
+    }
+    fun getAllEnrollments(callback: (List<Enrollment?>?) -> Unit) {
+        database.collection("classEnrollments").get().addOnSuccessListener {
+                query -> callback(query.toObjects(Enrollment::class.java))
+        }.addOnFailureListener {
+            callback(null)
+        }
+    }
+
+    fun getStudentEnrollments(studentEmail : String, callback: (List<Enrollment?>?) -> Unit) {
+        database.collection("classEnrollments").whereEqualTo("studentID", studentEmail).
+            get().addOnSuccessListener {
+                query -> callback(query.toObjects(Enrollment::class.java))
+        }.addOnFailureListener {
+            callback(null)
+        }
+    }
+
+    fun setClassEnrollment(classID: String, studentID: String, enrolled: Boolean) {
+        database.collection("classEnrollments").document("$classID-$studentID").set(Enrollment(classID, studentID, enrolled))
+    }
 
     data class Professor(
         val name: String = "",
@@ -159,15 +143,16 @@ class DatabaseUtil {
         val email: String = "",
         val major: String = ""
     )
-    data class ClassDetail(
-        val className: String = "",
-        val professorID: String = "",
-        val schedule: String = ""
-    )
     data class CheckIn(
         val studentID: String = "",
         val classID: String = "",
         val checkInTime: Date = Date()
+    )
+
+    data class Enrollment(
+        val studentID: String = "",
+        val classID: String = "",
+        val enrolled: Boolean = false
     )
 }
 

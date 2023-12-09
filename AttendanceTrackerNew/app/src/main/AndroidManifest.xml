@@ -32,7 +32,7 @@
             android:name=".RoleSelector"
             android:exported="false" />
         <activity
-            android:name=".ClassReportActivity"
+            android:name=".StudentReportActivity"
             android:exported="true" />
         <activity
             android:name=".CreateClass"
@@ -40,7 +40,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AttendanceTracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
