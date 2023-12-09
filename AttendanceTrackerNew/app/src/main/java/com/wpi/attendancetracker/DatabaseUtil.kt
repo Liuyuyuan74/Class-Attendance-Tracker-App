@@ -160,7 +160,7 @@ class DatabaseUtil {
         val classID: String = "",
         val time: Date = Date(),
         val isOpenSelectLocation: Boolean=false,
-        val   isOpenTracking: Boolean=false,
+        val isOpenTracking: Boolean=false,
         val isOpenUsingQr: Boolean=false,
         val isOpenOtherTechnique: Boolean=false
     ){

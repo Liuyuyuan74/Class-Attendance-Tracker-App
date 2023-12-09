@@ -29,6 +29,7 @@ import  com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.PlaceTypes
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import java.text.SimpleDateFormat
@@ -38,6 +39,7 @@ import java.util.Date
 
 class CreateClass : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
+
     var className = ""
     var classID = 0
     lateinit var classTime: Date
@@ -82,10 +84,13 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
             }
         } as ActivityResultCallback<ActivityResult>)
 
+
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
+        val classId = intent.getStringExtra("CLASS_ID_KEY") ?: "default_class_id"
+
         setContentView(R.layout.activity_create_class)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         ed_class_name = findViewById(R.id.ed_class_name)
@@ -105,7 +110,6 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
         Places.initializeWithNewPlacesApiEnabled(applicationContext, apiKey)
 
         // Create a new PlacesClient instance
-        val placesClient = Places.createClient(this)
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -136,49 +140,85 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
             startAutocompleteIntent()
         }
         btn_set_class.setOnClickListener {
-            var idStr = ed_class_id.text.toString()
-            className = ed_class_name.text.toString()
-
-            if (idStr.isEmpty()) {
-                Toast.makeText(this, "Please set class id", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            classID = idStr.toInt()
-            if (className.isEmpty()) {
-                Toast.makeText(this, "Please set class name", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            val classInfo = hashMapOf(
-                "className" to className,
-                "classID" to classID,
-                "time" to classTime,
-                "isOpenSelectLocation" to isOpenSelectLocation,
-                "isOpenTracking" to isOpenTracking,
-                "isOpenOtherTechnique" to isOpenOtherTechnique,
-                "isOpenOtherTechnique" to isOpenOtherTechnique,
-                "location" to location,
-                "address" to address,
-            )
-            Log.d(TAG, "classInfo: $classInfo")
-            Log.d(TAG, "classInfo time: ${classInfo["time"]} ${classInfo["time"]?.javaClass}")
-            var classInfo1 = DatabaseUtil.ClassInfo(
-                className,
-                classID.toString(),
-                classTime,
-                isOpenSelectLocation,
-                isOpenTracking,
-                isOpenUsingQr,
-                isOpenOtherTechnique
-            )
-            mDatabaseUtil.setClassInfo(classInfo1).addOnSuccessListener {
-                    Log.d(
-                        TAG,
-                        "classInfo DocumentSnapshot successfully written!"
-                    )
-                }
-                .addOnFailureListener { e -> Log.w(TAG, "classInfo Error writing document", e) }
-
+            saveData()
         }
+
+        if (!"".equals(classId)) {
+            mDatabaseUtil.getClass(classId, { loadData(it); })
+        }
+    }
+
+    private fun loadData(classInfo : DatabaseUtil.ClassInfo?) {
+        if (classInfo == null) return;
+        // set our fields
+        className = classInfo.className
+        classTime = classInfo.time
+        isOpenSelectLocation = classInfo.isOpenSelectLocation
+        isOpenTracking = classInfo.isOpenTracking
+        isOpenUsingQr = classInfo.isOpenUsingQr
+        isOpenOtherTechnique = classInfo.isOpenOtherTechnique
+
+
+        val classIdString = classInfo.classID
+        classID = classIdString.toInt()
+
+        syncFields()
+    }
+
+    private fun syncFields()
+    {
+        ed_class_name.setText(className)
+        ed_class_id.setText(classID.toString())
+        tv_time.text = sp.format(classTime)
+        sw_open_location.isChecked = isOpenSelectLocation
+        sw_activity_tracking.isChecked = isOpenTracking
+        sw_using_qr.isChecked = isOpenUsingQr
+        sw_other_technique.isChecked = isOpenOtherTechnique
+
+    }
+
+    private fun saveData() {
+        var idStr = ed_class_id.text.toString()
+        className = ed_class_name.text.toString()
+
+        if (idStr.isEmpty()) {
+            Toast.makeText(this, "Please set class id", Toast.LENGTH_SHORT).show()
+            return
+        }
+        classID = idStr.toInt()
+        if (className.isEmpty()) {
+            Toast.makeText(this, "Please set class name", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val classInfo = hashMapOf(
+            "className" to className,
+            "classID" to classID,
+            "time" to classTime,
+            "isOpenSelectLocation" to isOpenSelectLocation,
+            "isOpenTracking" to isOpenTracking,
+            "isOpenOtherTechnique" to isOpenOtherTechnique,
+            "isOpenOtherTechnique" to isOpenOtherTechnique,
+            "location" to location,
+            "address" to address,
+        )
+        Log.d(TAG, "classInfo: $classInfo")
+        Log.d(TAG, "classInfo time: ${classInfo["time"]} ${classInfo["time"]?.javaClass}")
+        var classInfo1 = DatabaseUtil.ClassInfo(
+            className,
+            classID.toString(),
+            classTime,
+            isOpenSelectLocation,
+            isOpenTracking,
+            isOpenUsingQr,
+            isOpenOtherTechnique
+        )
+        mDatabaseUtil.setClassInfo(classInfo1).addOnSuccessListener {
+            Log.d(
+                TAG,
+                "classInfo DocumentSnapshot successfully written!"
+            )
+        }
+            .addOnFailureListener { e -> Log.w(TAG, "classInfo Error writing document", e) }
     }
 
     private fun startAutocompleteIntent() {
