@@ -133,6 +133,29 @@ class DatabaseUtil {
         database.collection("classEnrollments").document("$classID-$studentID").set(Enrollment(classID, studentID, enrolled))
     }
 
+    fun setStudentEnrolled(studentId : String, classId : String, enrolled : Boolean, callback : (Boolean) -> Unit) {
+        // set the enrollment for the given student to the given value
+        database.collection("classEnrollments").document("$classId-$studentId").
+            set(Enrollment(classId, studentId, enrolled)).
+            addOnSuccessListener { callback(true) }.
+            addOnFailureListener { callback(false) }
+    }
+
+    fun isStudentEnrolled(studentId : String, classId : String, callback : (Boolean) -> Unit) {
+        database.collection("classEnrollments").document("$classId-$studentId").
+            get().addOnSuccessListener { query ->
+                if (query != null) {
+                    var enrollment = query.toObject(Enrollment::class.java)
+                    if (enrollment != null)
+                        callback(enrollment.enrolled)
+                    else
+                        callback(false)
+                }
+            }.addOnFailureListener {
+                callback(false)
+            }
+    }
+
     data class Professor(
         val name: String = "",
         val email: String = "",

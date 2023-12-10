@@ -33,6 +33,16 @@ class Student_CheckIn : AppCompatActivity() {
                 }
         }
 
+        binding.enrolled.setOnCheckedChangeListener { compoundButton, b ->
+            databaseUtil.setStudentEnrolled(studentId, classId, b) {
+                Toast.makeText(this, "Enrollment Updated", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        databaseUtil.isStudentEnrolled(studentId, classId) { b ->
+            binding.enrolled.isChecked = b
+        }
+
         binding.returnButton.setOnClickListener {
             finish() // Finish this activity and return to the previous one in the stack
         }
