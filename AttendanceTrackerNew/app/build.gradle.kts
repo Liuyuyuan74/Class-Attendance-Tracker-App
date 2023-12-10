@@ -87,4 +87,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("pub.devrel:easypermissions:3.0.0")
 }
