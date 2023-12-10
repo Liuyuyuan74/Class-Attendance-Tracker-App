@@ -173,6 +173,7 @@
                     android:id="@+id/sw_using_qr"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
+
             </androidx.appcompat.widget.LinearLayoutCompat>
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
@@ -200,14 +201,32 @@
                 android:layout_height="wrap_content"
                 android:text="Save"></Button>
 
-            <Button
-                android:id="@+id/btn_enrollments"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:text="Enrollments"></Button>
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_enrollments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="Enrollments"></Button>
+
+                <Button
+                    android:id="@+id/btn_qrcode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:text="QR Code"></Button>
+
+            </LinearLayout>
+
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </ScrollView>

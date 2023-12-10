@@ -1,5 +1,6 @@
 package com.wpi.attendancetracker
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,24 +10,25 @@ import android.widget.Button
 import android.widget.EditText
 
 class RoleSelector : AppCompatActivity() {
+    private lateinit var emailEditText : EditText
+    private lateinit var buttonTeacher : Button
+    private lateinit var buttonStudent : Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_role_selector)
 
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val buttonTeacher = findViewById<Button>(R.id.buttonTeacher)
-        val buttonStudent = findViewById<Button>(R.id.buttonStudent)
+        emailEditText = findViewById<EditText>(R.id.emailEditText)
+        buttonTeacher = findViewById<Button>(R.id.buttonTeacher)
+        buttonStudent = findViewById<Button>(R.id.buttonStudent)
+        emailEditText.setText(getEmail())
 
         emailEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-                // Not used
             }
 
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                // Enable buttons if email is not empty
-                val enableButtons = s.toString().isNotEmpty()
-                buttonTeacher.isEnabled = enableButtons
-                buttonStudent.isEnabled = enableButtons
+                enableButtons()
             }
 
             override fun afterTextChanged(s: Editable) {
@@ -35,18 +37,40 @@ class RoleSelector : AppCompatActivity() {
         })
 
         buttonTeacher.setOnClickListener {
-        /*    val intent = Intent(this, Teacher::class.java)
-            intent.putExtra(Teacher.EMAIL_KEY, emailEditText.text.toString())
-            startActivity(intent)
-            */
-           val intent = Intent(this, Teacher::class.java)
-            intent.putExtra(Teacher.EMAIL_KEY, emailEditText.text.toString())
+            val email = emailEditText.text.toString()
+            saveEmail(email)
+            val intent = Intent(this, Teacher::class.java)
+            intent.putExtra(Teacher.EMAIL_KEY, email)
             startActivity(intent)
         }
         buttonStudent.setOnClickListener {
+            val email = emailEditText.text.toString()
+            saveEmail(email)
             val intent = Intent(this, Student::class.java)
-            intent.putExtra(Student.EMAIL_KEY, emailEditText.text.toString())
+            intent.putExtra(Student.EMAIL_KEY, email)
             startActivity(intent)
         }
+
+        enableButtons()
+    }
+
+    private fun enableButtons() {
+        // Not used
+        val enableButtons = emailEditText.text.toString().isNotEmpty()
+        buttonTeacher.isEnabled = enableButtons
+        buttonStudent.isEnabled = enableButtons
+    }
+
+    fun saveEmail(email : String) {
+        val sharedPref = getSharedPreferences("attendance", Context.MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString("email", email)
+            apply()
+        }
+    }
+
+    fun getEmail() : String {
+        val sharedPref = getSharedPreferences("attendance", Context.MODE_PRIVATE)
+        return sharedPref.getString("email", "").toString()
     }
 }

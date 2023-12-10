@@ -60,6 +60,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     lateinit var sw_other_technique: Switch
     lateinit var btn_set_class: Button
     lateinit var btn_enrollments: Button
+    lateinit var btn_qrcode: Button
     var sp = SimpleDateFormat("yyyy-MM-dd HH:mm")
     var address: String? = null
     var mDatabaseUtil = DatabaseUtil()
@@ -106,6 +107,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         ll_time = findViewById(R.id.ll_time)
         btn_set_class = findViewById(R.id.btn_set_class)
         btn_enrollments = findViewById(R.id.btn_enrollments)
+        btn_qrcode = findViewById(R.id.btn_qrcode)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Initialize the SDK
@@ -149,8 +151,12 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
             launchReport()
         }
 
+        btn_qrcode.setOnClickListener {
+            launchQrCode()
+        }
+
         if (!"".equals(classId)) {
-            mDatabaseUtil.getClass(classId, { loadData(it); })
+            mDatabaseUtil.getClass(classId) { loadData(it); }
         }
     }
 
@@ -176,6 +182,13 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         val reportIntent = Intent(this, ClassReportActivity::class.java)
         reportIntent.putExtra(ClassReportActivity.CLASS_KEY, classID.toString())
         startActivity(reportIntent)
+    }
+
+    private fun launchQrCode()
+    {
+        val qrIntent = Intent(this, ClassQRActivity::class.java)
+        qrIntent.putExtra(ClassReportActivity.CLASS_KEY, classID.toString())
+        startActivity(qrIntent)
     }
 
     private fun syncFields()

@@ -15,8 +15,30 @@
         android:theme="@style/Theme.AttendanceTracker"
         tools:targetApi="31">
         <activity
-            android:name=".Student_CheckIn"
+            android:name=".ClassQRActivity"
             android:exported="false" />
+        <activity
+            android:name=".Student_CheckIn"
+            android:exported="true">
+            <intent-filter>
+                <data android:scheme="wpiattendance" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- <action android:name="android.intent.action.VIEW" /> -->
+
+
+                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+                <!-- <category android:name="android.intent.category.BROWSABLE" /> -->
+                <!-- <data -->
+                <!-- android:host="checkin.wpi.edu" -->
+                <!-- android:pathPrefix="/checkins/" -->
+                <!-- android:scheme="http" /> -->
+            </intent-filter>
+        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
