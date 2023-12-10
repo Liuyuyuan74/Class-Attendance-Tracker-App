@@ -173,8 +173,8 @@ class DatabaseUtil {
     )
 
     data class Enrollment(
-        val studentID: String = "",
         val classID: String = "",
+        val studentID: String = "",
         val enrolled: Boolean = false
     )
 

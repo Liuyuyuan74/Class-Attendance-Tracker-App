@@ -35,6 +35,7 @@ class StudentReportActivity : AppCompatActivity() {
     private var classMap : HashMap<String, Int> = HashMap()
     private var checkInMap : HashMap<String, Int> = HashMap()
     private var classDetailMap : HashMap<String, DatabaseUtil.ClassInfo> = HashMap()
+    private var enrolledClasses : ArrayList<DatabaseUtil.ClassInfo> = ArrayList()
     //private var studentMap : HashMap<String,DatabaseUtil.Student> = HashMap()
 
     companion object {
@@ -61,6 +62,7 @@ class StudentReportActivity : AppCompatActivity() {
         classMap.clear()
         checkInMap.clear()
         classDetailMap.clear()
+        enrolledClasses.clear()
 
         totalCheckIns = 0
         totalSessions = 0
@@ -73,12 +75,15 @@ class StudentReportActivity : AppCompatActivity() {
         }
 
         // TODO: only count classes that we are enrolled in, but for now, all classes
-        val enrolledClasses : ArrayList<DatabaseUtil.ClassInfo> = ArrayList()
         this.classes!!.forEach {
             if (it != null) {
-                enrolledClasses.add(it)
                 classDetailMap[it.classID] = it
             }
+        }
+
+        this.enrollments!!.forEach {
+            if ((it != null) && it.enrolled && (classDetailMap[it.classID] != null))
+                enrolledClasses.add(classDetailMap[it.classID]!!)
         }
 
         enrolledClasses.forEach {
@@ -128,10 +133,9 @@ class StudentReportActivity : AppCompatActivity() {
     private fun updateListView() {
         val classAttendanceList : ArrayList<String> = ArrayList()
 
-        for (classInfo in classDetailMap)
+        for (classDetail in enrolledClasses)
         {
-            val classKey = classInfo.key
-            val classDetail = classInfo.value
+            val classKey = classDetail.classID
             val sessions = classMap[classKey] ?: 0
             val attended = checkInMap[classKey] ?: 0
             classAttendanceList.add(classDetail.className + " " + attended + "/" + sessions)
@@ -142,9 +146,9 @@ class StudentReportActivity : AppCompatActivity() {
     }
 
     private fun runQueries() {
-        dbUtil.getCheckIns(studentID, { setCheckIns(it) })
-        dbUtil.getAllClasses( { setClasses(it) } )
-        dbUtil.getStudentEnrollments(studentID, { setEnrollments(it) })
+        dbUtil.getCheckIns(studentID) { setCheckIns(it) }
+        dbUtil.getAllClasses { setClasses(it) }
+        dbUtil.getStudentEnrollments(studentID) { setEnrollments(it) }
     }
 
     private fun setCheckIns(checkins: List<DatabaseUtil.CheckIn?>?) {
