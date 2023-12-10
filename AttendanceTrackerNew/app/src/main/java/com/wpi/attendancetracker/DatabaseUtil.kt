@@ -110,8 +110,17 @@ class DatabaseUtil {
         }.addOnFailureListener {
             callback(null)
         }
-
     }
+
+    fun getClassCheckIns(classID : String, callback : (List<CheckIn>?) -> Unit) {
+        database.collection("checkIns").whereEqualTo("classID", classID).
+        get().addOnSuccessListener {
+                query -> callback(query.toObjects(CheckIn::class.java).filterNotNull())
+        }.addOnFailureListener {
+            callback(null)
+        }
+    }
+
     fun getAllEnrollments(callback: (List<Enrollment?>?) -> Unit) {
         database.collection("classEnrollments").get().addOnSuccessListener {
                 query -> callback(query.toObjects(Enrollment::class.java))
@@ -124,6 +133,15 @@ class DatabaseUtil {
         database.collection("classEnrollments").whereEqualTo("studentID", studentEmail).
             get().addOnSuccessListener {
                 query -> callback(query.toObjects(Enrollment::class.java))
+        }.addOnFailureListener {
+            callback(null)
+        }
+    }
+
+    fun getClassEnrollments(classID : String, callback: (List<Enrollment>?) -> Unit) {
+        database.collection("classEnrollments").whereEqualTo("classID", classID).
+        get().addOnSuccessListener {
+                query -> callback(query.toObjects(Enrollment::class.java).filterNotNull())
         }.addOnFailureListener {
             callback(null)
         }

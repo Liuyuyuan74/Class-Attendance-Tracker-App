@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".CreateClass">
+    tools:context=".EditClass">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -199,6 +199,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Save"></Button>
+
+            <Button
+                android:id="@+id/btn_enrollments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:text="Enrollments"></Button>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </ScrollView>

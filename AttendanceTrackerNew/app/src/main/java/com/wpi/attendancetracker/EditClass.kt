@@ -3,6 +3,7 @@ package com.wpi.attendancetracker
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -36,7 +37,7 @@ import java.util.Calendar
 import java.util.Date
 
 
-class CreateClass : AppCompatActivity(), OnMapReadyCallback {
+class EditClass : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
 
     var className = ""
@@ -58,6 +59,7 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
     lateinit var sw_using_qr: Switch
     lateinit var sw_other_technique: Switch
     lateinit var btn_set_class: Button
+    lateinit var btn_enrollments: Button
     var sp = SimpleDateFormat("yyyy-MM-dd HH:mm")
     var address: String? = null
     var mDatabaseUtil = DatabaseUtil()
@@ -90,7 +92,7 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
         FirebaseApp.initializeApp(this)
         val classId = intent.getStringExtra("CLASS_ID_KEY") ?: "default_class_id"
 
-        setContentView(R.layout.activity_create_class)
+        setContentView(R.layout.activity_edit_class)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         ed_class_name = findViewById(R.id.ed_class_name)
         ed_class_id = findViewById(R.id.ed_class_id)
@@ -103,6 +105,7 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
         sw_other_technique = findViewById(R.id.sw_other_technique)
         ll_time = findViewById(R.id.ll_time)
         btn_set_class = findViewById(R.id.btn_set_class)
+        btn_enrollments = findViewById(R.id.btn_enrollments)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Initialize the SDK
@@ -142,6 +145,10 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
             saveData()
         }
 
+        btn_enrollments.setOnClickListener {
+            launchReport()
+        }
+
         if (!"".equals(classId)) {
             mDatabaseUtil.getClass(classId, { loadData(it); })
         }
@@ -162,6 +169,13 @@ class CreateClass : AppCompatActivity(), OnMapReadyCallback {
         classID = classIdString.toInt()
 
         syncFields()
+    }
+
+    private fun launchReport()
+    {
+        val reportIntent = Intent(this, ClassReportActivity::class.java)
+        reportIntent.putExtra(ClassReportActivity.CLASS_KEY, classID.toString())
+        startActivity(reportIntent)
     }
 
     private fun syncFields()

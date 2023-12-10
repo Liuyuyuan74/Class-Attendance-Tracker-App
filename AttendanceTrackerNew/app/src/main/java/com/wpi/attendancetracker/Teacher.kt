@@ -26,7 +26,7 @@ class Teacher : AppCompatActivity() {
                 }
                 val adapter = ClassesAdapter(this, nonNullClassItems)
                 adapter.buttonLabel = "Edit"
-                adapter.intentClass = CreateClass::class.java
+                adapter.intentClass = EditClass::class.java
                 recyclerView.adapter = adapter
             } else {
                 Log.w("Teacher", "Error getting class items")
@@ -35,7 +35,7 @@ class Teacher : AppCompatActivity() {
 
         val btnCreate = findViewById<Button>(R.id.btnCreate)
         btnCreate.setOnClickListener {
-            val reportIntent = Intent(this, CreateClass::class.java)
+            val reportIntent = Intent(this, EditClass::class.java)
             reportIntent.putExtra(StudentReportActivity.STUDENT_KEY, email)
             startActivity(reportIntent)
         }
