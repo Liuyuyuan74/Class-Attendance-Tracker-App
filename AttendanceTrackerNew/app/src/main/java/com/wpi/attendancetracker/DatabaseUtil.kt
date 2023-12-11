@@ -205,7 +205,8 @@ class DatabaseUtil {
         val openUsingQr: Boolean=false,
         val openOtherTechnique: Boolean=false
     ){
-        var location: LatLng?=null
+        var lat:Double?=null
+        var lon:Double?=null
         var address:String?=null
     }
 }

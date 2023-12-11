@@ -236,8 +236,11 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
             isOpenSelectLocation,
             isOpenTracking,
             isOpenUsingQr,
-            isOpenOtherTechnique
+            isOpenOtherTechnique,
         )
+        classInfo1.lat = 42.347800
+        classInfo1.lon = -71.535420
+
         mDatabaseUtil.setClassInfo(classInfo1).addOnSuccessListener {
             Log.d(TAG,"classInfo DocumentSnapshot successfully written!")
             Toast.makeText(this, "Saved Class", Toast.LENGTH_SHORT).show()
