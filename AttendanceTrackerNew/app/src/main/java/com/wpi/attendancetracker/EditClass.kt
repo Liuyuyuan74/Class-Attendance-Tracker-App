@@ -64,8 +64,8 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     var sp = SimpleDateFormat("yyyy-MM-dd HH:mm")
     var address: String? = null
     var mDatabaseUtil = DatabaseUtil()
-    val TAG = "CreateClass"
-    val apiKey = "CreateClass"
+    val TAG = "jj-EditClass"
+    val apiKey = "AIzaSyAa8xUgJLfBBuPYmVi3WgGm1cfnLLfVIJE"
     private val startAutocomplete = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
         ActivityResultCallback { result: ActivityResult ->
@@ -111,7 +111,9 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Initialize the SDK
-        Places.initializeWithNewPlacesApiEnabled(applicationContext, apiKey)
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, apiKey)
+        }
 
         // Create a new PlacesClient instance
         val mapFragment = supportFragmentManager
@@ -140,7 +142,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         sw_other_technique.setOnCheckedChangeListener { compoundButton, b ->
             isOpenOtherTechnique = b
         }
-        rl_location.setOnClickListener {
+        ll_select_location.setOnClickListener {
             startAutocompleteIntent()
         }
         btn_set_class.setOnClickListener {
@@ -257,7 +259,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         )
 
         // Build the autocomplete intent with field, country, and type filters applied
-        val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+        val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
             .setCountries(listOf("US"))
             .setTypesFilter(listOf(PlaceTypes.ADDRESS))
             .build(this)
