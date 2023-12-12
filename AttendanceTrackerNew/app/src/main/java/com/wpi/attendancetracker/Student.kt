@@ -7,6 +7,7 @@ import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
+import android.widget.EditText
 
 class Student : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,6 +20,9 @@ class Student : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewClasses)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        val searchEditText = findViewById<EditText>(R.id.editText)
+        val searchButton = findViewById<Button>(R.id.btnSearch)
+        var classItemsList: List<ClassItem> = listOf()
         databaseUtil.getAllClasses { classItems ->
             if (classItems != null) {
 //                val studentID = "jdifao"
@@ -27,6 +31,7 @@ class Student : AppCompatActivity() {
                 val nonNullClassItems = classItems.filterNotNull().map { classItem ->
                     ClassItem(classItem.className, email, classItem.classID)
                 }
+                classItemsList = nonNullClassItems
                 recyclerView.adapter = ClassesAdapter(this, nonNullClassItems)
             } else {
                 Log.w("Student", "Error getting class items")
@@ -38,6 +43,12 @@ class Student : AppCompatActivity() {
             val reportIntent = Intent(this, StudentReportActivity::class.java)
             reportIntent.putExtra(StudentReportActivity.STUDENT_KEY, email)
             startActivity(reportIntent)
+        }
+
+        searchButton.setOnClickListener {
+            val searchText = searchEditText.text.toString().trim()
+            val filteredList = classItemsList.filter { it.className.contains(searchText, ignoreCase = true) }
+            recyclerView.adapter = ClassesAdapter(this, filteredList)
         }
     }
 
