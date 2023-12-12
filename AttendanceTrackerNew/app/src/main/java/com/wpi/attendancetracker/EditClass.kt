@@ -1,15 +1,19 @@
 package com.wpi.attendancetracker
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Switch
 import android.widget.TextView
@@ -17,9 +21,12 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -30,8 +37,12 @@ import  com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.PlaceTypes
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.wpi.attendancetracker.databinding.ItemTimeBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -39,10 +50,11 @@ import java.util.Date
 
 class EditClass : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
-
+    private lateinit var placesClient: PlacesClient
     var className = ""
     var classID = 0
-    lateinit var classTime: Date
+    var classTimes:MutableList<Date> = arrayListOf<Date>()
+    var curTimeIndex= 0
     var isOpenSelectLocation = false
     var isOpenTracking = false
     var isOpenUsingQr = false
@@ -50,8 +62,8 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     var location: LatLng? = null
     lateinit var ed_class_name: EditText
     lateinit var ed_class_id: EditText
-    lateinit var tv_time: TextView
-    lateinit var ll_time: LinearLayoutCompat
+    lateinit var ll_times: LinearLayoutCompat
+    lateinit var iv_add_time: AppCompatImageView
     lateinit var sw_open_location: Switch
     lateinit var ll_select_location: LinearLayoutCompat
     lateinit var rl_location: RelativeLayout
@@ -61,8 +73,10 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     lateinit var btn_set_class: Button
     lateinit var btn_enrollments: Button
     lateinit var btn_qrcode: Button
+    var lat:Double?=null
+    var lon:Double?=null
+    var address:String?=null
     var sp = SimpleDateFormat("yyyy-MM-dd HH:mm")
-    var address: String? = null
     var mDatabaseUtil = DatabaseUtil()
     val TAG = "jj-EditClass"
     val apiKey = "AIzaSyAa8xUgJLfBBuPYmVi3WgGm1cfnLLfVIJE"
@@ -97,14 +111,14 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         ed_class_name = findViewById(R.id.ed_class_name)
         ed_class_id = findViewById(R.id.ed_class_id)
-        tv_time = findViewById(R.id.tv_time)
+        iv_add_time = findViewById(R.id.iv_add_time)
         sw_open_location = findViewById(R.id.sw_open_location)
         ll_select_location = findViewById(R.id.ll_select_location)
         rl_location = findViewById(R.id.rl_location)
         sw_activity_tracking = findViewById(R.id.sw_activity_tracking)
         sw_using_qr = findViewById(R.id.sw_using_qr)
         sw_other_technique = findViewById(R.id.sw_other_technique)
-        ll_time = findViewById(R.id.ll_time)
+        ll_times = findViewById(R.id.ll_times)
         btn_set_class = findViewById(R.id.btn_set_class)
         btn_enrollments = findViewById(R.id.btn_enrollments)
         btn_qrcode = findViewById(R.id.btn_qrcode)
@@ -114,14 +128,13 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, apiKey)
         }
-
+        placesClient = Places.createClient(this)
         // Create a new PlacesClient instance
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        classTime = Date()
-        tv_time.text = sp.format(classTime)
-        ll_time.setOnClickListener {
+        iv_add_time.setOnClickListener {
+            curTimeIndex=-1
             selectDate()
         }
         sw_open_location.setOnCheckedChangeListener { compoundButton, b ->
@@ -166,16 +179,13 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         if (classInfo == null) return;
         // set our fields
         className = classInfo.className
-        classTime = classInfo.time
+        classTimes = classInfo.times
         isOpenSelectLocation = classInfo.openSelectLocation
         isOpenTracking = classInfo.openTracking
         isOpenUsingQr = classInfo.openUsingQr
         isOpenOtherTechnique = classInfo.openOtherTechnique
-
-
         val classIdString = classInfo.classID
         classID = classIdString.toInt()
-
         syncFields()
     }
 
@@ -197,12 +207,12 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     {
         ed_class_name.setText(className)
         ed_class_id.setText(classID.toString())
-        tv_time.text = sp.format(classTime)
+      //  tv_time.text = sp.format(classTime)
         sw_open_location.isChecked = isOpenSelectLocation
         sw_activity_tracking.isChecked = isOpenTracking
         sw_using_qr.isChecked = isOpenUsingQr
         sw_other_technique.isChecked = isOpenOtherTechnique
-
+        updateTimes()
     }
 
     private fun saveData() {
@@ -218,23 +228,11 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
             Toast.makeText(this, "Please set class name", Toast.LENGTH_SHORT).show()
             return
         }
-        val classInfo = hashMapOf(
-            "className" to className,
-            "classID" to classID,
-            "time" to classTime,
-            "isOpenSelectLocation" to isOpenSelectLocation,
-            "isOpenTracking" to isOpenTracking,
-            "isOpenOtherTechnique" to isOpenOtherTechnique,
-            "isOpenOtherTechnique" to isOpenOtherTechnique,
-            "location" to location,
-            "address" to address,
-        )
-        Log.d(TAG, "classInfo: $classInfo")
-        Log.d(TAG, "classInfo time: ${classInfo["time"]} ${classInfo["time"]?.javaClass}")
+
         var classInfo1 = DatabaseUtil.ClassInfo(
             className,
             classID.toString(),
-            classTime,
+            classTimes,
             isOpenSelectLocation,
             isOpenTracking,
             isOpenUsingQr,
@@ -255,7 +253,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     private fun startAutocompleteIntent() {
         // Set the fields to specify which types of place data to
         // return after the user has made a selection.
-        val fields = listOf(
+       /* val fields = listOf(
             Place.Field.ADDRESS_COMPONENTS,
             Place.Field.ADDRESS,
             Place.Field.LAT_LNG, Place.Field.VIEWPORT
@@ -266,7 +264,8 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
             .setCountries(listOf("US"))
             .setTypesFilter(listOf(PlaceTypes.ADDRESS))
             .build(this)
-        startAutocomplete.launch(intent)
+        startAutocomplete.launch(intent)*/
+        findCurrentPlace();
     }
 
     private fun fillInAddress(place: Place) {
@@ -291,7 +290,13 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
 
     fun selectDate() {
         val cd = Calendar.getInstance()
-        cd.time = classTime
+        if(curTimeIndex==-1){
+            cd.time = Date()
+
+        }else{
+            cd.time = classTimes[curTimeIndex]
+        }
+
         val year = cd.get(Calendar.YEAR)
         val monthOfYear = cd.get(Calendar.MONTH)
         val dayOfMonth = cd.get(Calendar.DAY_OF_MONTH)
@@ -301,7 +306,12 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
                 cd.set(Calendar.YEAR, year)
                 cd.set(Calendar.MONTH, monthOfYear)
                 cd.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                classTime = cd.time
+                if(curTimeIndex==-1){
+                    classTimes.add(cd.time)
+
+                }else{
+                    classTimes[curTimeIndex]=cd.time ;
+                }
                 selectTime()
             }, year, monthOfYear, dayOfMonth
         )
@@ -310,18 +320,39 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
 
     fun selectTime() {
         val cd = Calendar.getInstance()
-        cd.time = classTime
+        if(curTimeIndex==-1){
+            cd.time = Date()
+
+        }else{
+            cd.time = classTimes[curTimeIndex]
+        }
         val hourOfDay = cd.get(Calendar.HOUR_OF_DAY)
         val minute = cd.get(Calendar.MINUTE)
         val dialog = TimePickerDialog(this, { view, hourOfDay, minute ->
             cd.set(Calendar.HOUR_OF_DAY, hourOfDay)
             cd.set(Calendar.MINUTE, minute)
-            classTime = cd.time
-            tv_time.text = sp.format(classTime)
+            if(curTimeIndex==-1){
+                classTimes.add(cd.time)
+            }else{
+                classTimes[curTimeIndex]=cd.time ;
+            }
+            updateTimes()
         }, hourOfDay, minute, false)
         dialog.show()
     }
 
+    fun updateTimes(){
+        ll_times.removeAllViews()
+        for (index in 0 until classTimes.size ){
+            var item = ItemTimeBinding.inflate(LayoutInflater.from(this))
+            item.tvTime.setText(sp.format(classTimes[index]))
+            item.root.setOnClickListener {
+                curTimeIndex = index
+                selectDate()
+            }
+            ll_times.addView(item.root)
+        }
+    }
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
     }
@@ -332,4 +363,103 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    /**
+     * Check whether permissions have been granted or not, and ultimately proceeds to either
+     * request them or runs {@link #findCurrentPlaceWithPermissions() findCurrentPlaceWithPermissions}
+     */
+    @SuppressLint("MissingPermission")
+    private fun findCurrentPlace() {
+        if (hasOnePermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            findCurrentPlaceWithPermissions()
+            return
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    /**
+     * Fetches a list of [com.google.android.libraries.places.api.model.PlaceLikelihood] instances that represent the Places the user is
+     * most likely to be at currently.
+     */
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_WIFI_STATE])
+    private fun findCurrentPlaceWithPermissions() {
+        setLoading(true)
+        val placeFields = arrayListOf<Place.Field>(
+            Place.Field.ADDRESS_COMPONENTS,
+            Place.Field.CURBSIDE_PICKUP,
+            Place.Field.CURRENT_OPENING_HOURS,
+            Place.Field.DELIVERY,
+            Place.Field.DINE_IN,
+            Place.Field.EDITORIAL_SUMMARY,
+            Place.Field.OPENING_HOURS,
+            Place.Field.PHONE_NUMBER,
+            Place.Field.RESERVABLE,
+            Place.Field.SECONDARY_OPENING_HOURS,
+            Place.Field.SERVES_BEER,
+            Place.Field.SERVES_BREAKFAST,
+            Place.Field.SERVES_BRUNCH,
+            Place.Field.SERVES_DINNER,
+            Place.Field.SERVES_LUNCH,
+            Place.Field.SERVES_VEGETARIAN_FOOD,
+            Place.Field.SERVES_WINE,
+            Place.Field.TAKEOUT,
+            Place.Field.UTC_OFFSET,
+            Place.Field.WEBSITE_URI,
+            Place.Field.WHEELCHAIR_ACCESSIBLE_ENTRANCE
+        )
+        val currentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+        val currentPlaceTask = placesClient.findCurrentPlace(currentPlaceRequest)
+        currentPlaceTask.addOnSuccessListener { response: FindCurrentPlaceResponse? ->
+            response?.let {
+                if(it.placeLikelihoods.isNotEmpty()){
+                    it.placeLikelihoods.first().place.let {
+                        address=it.address;
+                        lat=it.latLng.latitude
+                        lon=it.latLng.longitude
+                    }
+                }
+               // binding.response.text = StringUtil.stringify(it, isDisplayRawResultsChecked)
+            }
+        }
+        currentPlaceTask.addOnFailureListener { exception: Exception ->
+
+        }
+        currentPlaceTask.addOnCompleteListener {  setLoading(false)}
+    }
+
+    private fun setLoading(loading: Boolean) {
+
+    }
+    @SuppressLint("MissingPermission")
+    val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
+                    // Only approximate location access granted.
+                    findCurrentPlaceWithPermissions()
+                }
+                else -> {
+                    Toast.makeText(
+                        this,
+                        "Either ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION permissions are required",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    private fun hasOnePermissionGranted(vararg permissions: String): Boolean =
+        permissions.any {
+            ContextCompat.checkSelfPermission(
+                this,
+                it
+            ) == PackageManager.PERMISSION_GRANTED
+        }
 }

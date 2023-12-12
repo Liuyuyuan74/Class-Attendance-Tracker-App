@@ -199,7 +199,7 @@ class DatabaseUtil {
     class ClassInfo(
         val className: String = "",
         val classID: String = "",
-        val time: Date = Date(),
+        val times:MutableList<Date>  = arrayListOf(),
         val openSelectLocation: Boolean=false,
         val openTracking: Boolean=false,
         val openUsingQr: Boolean=false,

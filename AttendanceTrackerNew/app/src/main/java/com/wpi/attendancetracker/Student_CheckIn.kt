@@ -121,11 +121,7 @@ class Student_CheckIn : AppCompatActivity() {
         if (classInfo == null) return false
         val now = Date().time
 
-        // loop over all class times
-        val classStart = classInfo!!.time.time
-        val classEnd = classStart + duration
-
-        val timeok = (now in classStart..classEnd)
+        val timeok = (classInfo!!.times.find{ now in it.time .. it.time + duration } != null)
         binding.classTimeCheck.isChecked = timeok
 
         return timeok
