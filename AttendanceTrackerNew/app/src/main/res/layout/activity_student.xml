@@ -39,7 +39,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="text"
-                android:text="Class Name" />
+                android:hint="Class Name" />
 
             <Button
                 android:id="@+id/btnSearch"
@@ -56,12 +56,12 @@
             android:paddingHorizontal="10dp">
 
             <Button
-                android:id="@+id/btnGoToReport"
+                android:id="@+id/btnAllClasses"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingHorizontal="5dp"
-                android:text="Go to Report" />
+                android:text="All Classes" />
 
             <Button
                 android:id="@+id/btnErolledClasses"
@@ -70,6 +70,14 @@
                 android:layout_weight="1"
                 android:paddingHorizontal="5dp"
                 android:text="Enrolled Classes" />
+
+            <Button
+                android:id="@+id/btnGoToReport"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="5dp"
+                android:text="Go to Report" />
 
         </LinearLayout>
 

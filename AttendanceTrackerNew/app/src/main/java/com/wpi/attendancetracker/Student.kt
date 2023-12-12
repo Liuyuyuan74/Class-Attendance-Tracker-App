@@ -26,9 +26,12 @@ class Student : AppCompatActivity() {
         var classItemsList: List<ClassItem> = listOf()
         val btnEnrolledClasses = findViewById<Button>(R.id.btnErolledClasses)
 
+        val btnAllClasses = findViewById<Button>(R.id.btnAllClasses)
+        var nonNullClassItems: List<ClassItem> = listOf()
+
         databaseUtil.getAllClasses { classItems ->
             if (classItems != null) {
-                val nonNullClassItems = classItems.filterNotNull().map { classItem ->
+                nonNullClassItems = classItems.filterNotNull().map { classItem ->
                     ClassItem(classItem.className, email, classItem.classID)
                 }
                 classItemsList = nonNullClassItems
@@ -54,13 +57,20 @@ class Student : AppCompatActivity() {
         btnEnrolledClasses.setOnClickListener {
             loadEnrollments(email, databaseUtil, recyclerView)
         }
+
+        btnAllClasses.setOnClickListener{
+            recyclerView.adapter = ClassesAdapter(this, nonNullClassItems)
+        }
     }
 
     private fun loadEnrollments(email: String, databaseUtil: DatabaseUtil, recyclerView: RecyclerView) {
         databaseUtil.getStudentEnrollments(email) { enrollments ->
             if (enrollments != null) {
-                val nonNullEnrollments = enrollments.filterNotNull()
-                val adapter = EnrollmentAdapter(this, nonNullEnrollments, databaseUtil)
+                // Filter out null values and ensure 'enrolled' is true
+                val filteredEnrollments = enrollments.filterNotNull().filter { it.enrolled }
+
+                // Pass the filtered list to the EnrollmentAdapter
+                val adapter = EnrollmentAdapter(this, filteredEnrollments.toMutableList(), databaseUtil)
                 recyclerView.adapter = adapter
             } else {
                 Log.w("Student", "Error getting enrollments")
