@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.widget.EditText
+import android.widget.Toast
 
 class Student : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,11 +24,10 @@ class Student : AppCompatActivity() {
         val searchEditText = findViewById<EditText>(R.id.editText)
         val searchButton = findViewById<Button>(R.id.btnSearch)
         var classItemsList: List<ClassItem> = listOf()
+        val btnEnrolledClasses = findViewById<Button>(R.id.btnErolledClasses)
+
         databaseUtil.getAllClasses { classItems ->
             if (classItems != null) {
-//                val studentID = "jdifao"
-//                val classID = "jdsfoiaje"
-//                val nonNullClassItems = classItems.filterNotNull()
                 val nonNullClassItems = classItems.filterNotNull().map { classItem ->
                     ClassItem(classItem.className, email, classItem.classID)
                 }
@@ -49,6 +49,22 @@ class Student : AppCompatActivity() {
             val searchText = searchEditText.text.toString().trim()
             val filteredList = classItemsList.filter { it.className.contains(searchText, ignoreCase = true) }
             recyclerView.adapter = ClassesAdapter(this, filteredList)
+        }
+
+        btnEnrolledClasses.setOnClickListener {
+            loadEnrollments(email, databaseUtil, recyclerView)
+        }
+    }
+
+    private fun loadEnrollments(email: String, databaseUtil: DatabaseUtil, recyclerView: RecyclerView) {
+        databaseUtil.getStudentEnrollments(email) { enrollments ->
+            if (enrollments != null) {
+                val nonNullEnrollments = enrollments.filterNotNull()
+                val adapter = EnrollmentAdapter(this, nonNullEnrollments, databaseUtil)
+                recyclerView.adapter = adapter
+            } else {
+                Log.w("Student", "Error getting enrollments")
+            }
         }
     }
 
