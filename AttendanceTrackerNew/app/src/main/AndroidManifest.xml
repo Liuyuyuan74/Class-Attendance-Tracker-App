@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -22,9 +22,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AttendanceTracker"
         tools:targetApi="31">
+        <activity
+            android:name=".Enrolled"
+            android:exported="false" />
+        <activity
+            android:name=".Search"
+            android:exported="false" />
+
         <service
             android:name=".ActivityIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
+
         <activity
             android:name=".ClassQRActivity"
             android:exported="false" />
