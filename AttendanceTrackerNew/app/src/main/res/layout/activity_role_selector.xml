@@ -1,39 +1,105 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".RoleSelector">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:paddingTop="50dp"
+        android:text="Track Attendance"
+        android:textColor="#6750A2"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/emailEditText"
         android:layout_width="350dp"
         android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="120dp"
         android:hint="Enter Email"
         android:inputType="textEmailAddress" />
 
     <LinearLayout
-        android:id="@+id/buttonLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="120dp"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="50dp">
 
         <Button
             android:id="@+id/buttonStudent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="#6750A2"
             android:enabled="false"
-            android:text="Student" />
+            android:text="Student"
+            android:textColor="#FFFFFF" />
 
         <Button
             android:id="@+id/buttonTeacher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#6750A2"
             android:enabled="false"
-            android:text="Teacher" />
+            android:text="Teacher"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AF3838" />
     </LinearLayout>
-
 </LinearLayout>
+
+    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:orientation="vertical"-->
+<!--    tools:context=".RoleSelector">-->
+
+
+<!--    <TextView-->
+<!--        android:id="@+id/textView4"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Track Attendance" />-->
+
+<!--    <EditText-->
+<!--        android:id="@+id/emailEditText"-->
+<!--        android:layout_width="350dp"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_gravity="center_horizontal"-->
+<!--        android:layout_marginTop="120dp"-->
+<!--        android:hint="Enter Email"-->
+<!--        android:inputType="textEmailAddress" />-->
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:gravity="center_horizontal"-->
+<!--        android:orientation="vertical"-->
+<!--        android:paddingTop="50dp">-->
+
+<!--        <Button-->
+<!--            android:id="@+id/buttonStudent"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginEnd="16dp"-->
+<!--            android:enabled="false"-->
+<!--            android:text="Student" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/buttonTeacher"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:enabled="false"-->
+<!--            android:text="Teacher" />-->
+<!--    </LinearLayout>-->
+
+<!--</LinearLayout>-->

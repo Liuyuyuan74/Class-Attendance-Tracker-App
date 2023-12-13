@@ -96,7 +96,7 @@ class StudentReportActivity : AppCompatActivity() {
                 if (classStart <= Date().time) {
                     val sessionCheckIn = checkIns!!.filterNotNull().find {
                         ((it.classID == classInfo.classID) &&
-                                (it.checkInTime.date in classStart..classEnd))
+                                (it.checkInTime.time in classStart..classEnd))
                     }
                     if (sessionCheckIn != null)
                         numCheckIn++
@@ -107,6 +107,9 @@ class StudentReportActivity : AppCompatActivity() {
             classMap[classInfo.classID] = numClasses
             checkInMap[classInfo.classID] = numCheckIn
         }
+
+        totalSessions = classMap.values.sum()
+        totalCheckIns = checkInMap.values.sum()
     }
 
     private fun updateView() {

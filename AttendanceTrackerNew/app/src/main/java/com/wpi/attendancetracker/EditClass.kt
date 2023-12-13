@@ -271,7 +271,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
             mMap.addMarker(
                 MarkerOptions()
                     .position(location!!)
-                    .title(address ?: "Localtion")
+                    .title(address ?: "Location")
             )
             mMap.moveCamera(CameraUpdateFactory.newLatLng(location!!))
         } else {
