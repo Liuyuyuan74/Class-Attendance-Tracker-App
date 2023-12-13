@@ -26,18 +26,35 @@ class EnrollmentAdapter(
         return EnrollmentViewHolder(view)
     }
 
+//    override fun onBindViewHolder(holder: EnrollmentViewHolder, position: Int) {
+//        val enrollment = enrollmentList[position]
+//        holder.textViewClassID.text = enrollment.classID
+//        holder.buttonCancelEnrollment.setOnClickListener {
+//            // Call the database update function
+//            databaseUtil.setStudentEnrolled(enrollment.studentID, enrollment.classID, false) {
+//                Toast.makeText(context, "Enrollment cancelled", Toast.LENGTH_SHORT).show()
+//                // Consider refreshing the data or notifying the adapter
+//                holder.buttonCancelEnrollment.text = "Canceled"
+//            }
+//        }
+//    }
+
     override fun onBindViewHolder(holder: EnrollmentViewHolder, position: Int) {
         val enrollment = enrollmentList[position]
         holder.textViewClassID.text = enrollment.classID
         holder.buttonCancelEnrollment.setOnClickListener {
-            // Call the database update function
-            databaseUtil.setStudentEnrolled(enrollment.studentID, enrollment.classID, false) {
-                Toast.makeText(context, "Enrollment cancelled", Toast.LENGTH_SHORT).show()
-                // Consider refreshing the data or notifying the adapter
-                holder.buttonCancelEnrollment.text = "Canceled"
+            Toast.makeText(context, "Enrollment cancelled", Toast.LENGTH_SHORT).show()
+            holder.buttonCancelEnrollment.text = "Canceled"
+            databaseUtil.setStudentEnrolled(enrollment.studentID, enrollment.classID, false) { isSuccess ->
+                if (isSuccess) {
+
+                    // Optionally, disable the button to prevent further clicks
+                    holder.buttonCancelEnrollment.isEnabled = false
+                } else {
+                    Toast.makeText(context, "Failed to cancel enrollment", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
-
     override fun getItemCount() = enrollmentList.size
 }

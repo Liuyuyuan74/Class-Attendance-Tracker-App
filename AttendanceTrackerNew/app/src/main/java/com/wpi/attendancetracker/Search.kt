@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -38,6 +39,11 @@ class Search : AppCompatActivity() {
             val searchText = searchEditText.text.toString().trim()
             val filteredList = classItemsList.filter { it.className.contains(searchText, ignoreCase = true) }
             recyclerView.adapter = ClassesAdapter(this, filteredList)
+        }
+
+        val returnButton = findViewById<ImageButton>(R.id.returnButton2)
+        returnButton.setOnClickListener {
+            finish() // Finish this activity and return to the previous one in the stack
         }
     }
 }
