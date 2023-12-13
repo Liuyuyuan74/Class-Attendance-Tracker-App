@@ -58,7 +58,6 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     var isOpenSelectLocation = false
     var isOpenTracking = false
     var isOpenUsingQr = false
-    var isOpenOtherTechnique = false
     var location: LatLng? = null
     lateinit var ed_class_name: EditText
     lateinit var ed_class_id: EditText
@@ -69,7 +68,6 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     lateinit var rl_location: RelativeLayout
     private lateinit var sw_activity_tracking: Switch
     lateinit var sw_using_qr: Switch
-    lateinit var sw_other_technique: Switch
     lateinit var btn_set_class: Button
     lateinit var btn_enrollments: Button
     lateinit var btn_qrcode: Button
@@ -117,7 +115,6 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         rl_location = findViewById(R.id.rl_location)
         sw_activity_tracking = findViewById(R.id.sw_activity_tracking)
         sw_using_qr = findViewById(R.id.sw_using_qr)
-        sw_other_technique = findViewById(R.id.sw_other_technique)
         ll_times = findViewById(R.id.ll_times)
         btn_set_class = findViewById(R.id.btn_set_class)
         btn_enrollments = findViewById(R.id.btn_enrollments)
@@ -152,9 +149,6 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         sw_using_qr.setOnCheckedChangeListener { compoundButton, b ->
             isOpenUsingQr = b
         }
-        sw_other_technique.setOnCheckedChangeListener { compoundButton, b ->
-            isOpenOtherTechnique = b
-        }
         ll_select_location.setOnClickListener {
             startAutocompleteIntent()
         }
@@ -183,7 +177,6 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         isOpenSelectLocation = classInfo.openSelectLocation
         isOpenTracking = classInfo.openTracking
         isOpenUsingQr = classInfo.openUsingQr
-        isOpenOtherTechnique = classInfo.openOtherTechnique
         val classIdString = classInfo.classID
         classID = classIdString.toInt()
         syncFields()
@@ -211,7 +204,6 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
         sw_open_location.isChecked = isOpenSelectLocation
         sw_activity_tracking.isChecked = isOpenTracking
         sw_using_qr.isChecked = isOpenUsingQr
-        sw_other_technique.isChecked = isOpenOtherTechnique
         updateTimes()
     }
 
@@ -236,7 +228,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
             isOpenSelectLocation,
             isOpenTracking,
             isOpenUsingQr,
-            isOpenOtherTechnique,
+            false,
         )
         classInfo1.lat = 42.347800
         classInfo1.lon = -71.535420
@@ -253,7 +245,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
     private fun startAutocompleteIntent() {
         // Set the fields to specify which types of place data to
         // return after the user has made a selection.
-       /* val fields = listOf(
+        val fields = listOf(
             Place.Field.ADDRESS_COMPONENTS,
             Place.Field.ADDRESS,
             Place.Field.LAT_LNG, Place.Field.VIEWPORT
@@ -264,8 +256,7 @@ class EditClass : AppCompatActivity(), OnMapReadyCallback {
             .setCountries(listOf("US"))
             .setTypesFilter(listOf(PlaceTypes.ADDRESS))
             .build(this)
-        startAutocomplete.launch(intent)*/
-        findCurrentPlace();
+        startAutocomplete.launch(intent)
     }
 
     private fun fillInAddress(place: Place) {
