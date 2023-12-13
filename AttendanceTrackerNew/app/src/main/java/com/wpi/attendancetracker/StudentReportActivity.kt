@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import java.util.Date
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Description
@@ -74,7 +75,6 @@ class StudentReportActivity : AppCompatActivity() {
             return
         }
 
-        // TODO: only count classes that we are enrolled in, but for now, all classes
         this.classes!!.forEach {
             if (it != null) {
                 classDetailMap[it.classID] = it
@@ -86,19 +86,26 @@ class StudentReportActivity : AppCompatActivity() {
                 enrolledClasses.add(classDetailMap[it.classID]!!)
         }
 
-        enrolledClasses.forEach {
-            classMap.set(it.classID, 1) // should be the number of sessions, not 1
-            totalSessions+=1
-        }
-
-        checkIns!!.forEach {
-            if (it != null) {
-                var count = checkInMap[it.classID]
-                if (count == null) count = 0
-                count++
-                totalCheckIns++
-                checkInMap[it.classID] = count
+        enrolledClasses.forEach { classInfo ->
+            var numCheckIn = 0
+            var numClasses = 0
+            // go through each scheduled date
+            classInfo.times.forEach { classDate ->
+                val classStart = classDate.time
+                val classEnd = classDate.time + 90*60*1000
+                if (classStart <= Date().time) {
+                    val sessionCheckIn = checkIns!!.filterNotNull().find {
+                        ((it.classID == classInfo.classID) &&
+                                (it.checkInTime.date in classStart..classEnd))
+                    }
+                    if (sessionCheckIn != null)
+                        numCheckIn++
+                    numClasses++
+                }
             }
+            // see if I have a checkin in that time
+            classMap[classInfo.classID] = numClasses
+            checkInMap[classInfo.classID] = numCheckIn
         }
     }
 

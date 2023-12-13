@@ -1,6 +1,7 @@
 package com.wpi.attendancetracker
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -23,10 +25,13 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingEvent
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.wpi.attendancetracker.databinding.ActivityStudentCheckInBinding
 import java.util.Date
+import kotlin.math.sqrt
 
 
 class Student_CheckIn : AppCompatActivity() {
@@ -38,6 +43,7 @@ class Student_CheckIn : AppCompatActivity() {
     private val ACTIVITY_RECOGNITION_REQUEST_CODE = 1
 
     private var autoCheckin : Boolean = false
+    private var enrolled : Boolean = false
     private var classInfo : DatabaseUtil.ClassInfo? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +54,8 @@ class Student_CheckIn : AppCompatActivity() {
 
         activityRecognitionClient = ActivityRecognitionClient(this)
         geofencingClient = LocationServices.getGeofencingClient(this)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
 
         studentId = intent.getStringExtra("STUDENT_ID_KEY") ?: "default_student_id"
         classId = intent.getStringExtra("CLASS_ID_KEY") ?: "default_class_id"
@@ -70,12 +78,16 @@ class Student_CheckIn : AppCompatActivity() {
         }
 
         databaseUtil.isStudentEnrolled(studentId, classId) { b ->
+            enrolled = b
             binding.enrolled.isChecked = b
         }
 
         binding.enrolled.setOnCheckedChangeListener { compoundButton, b ->
-            databaseUtil.setStudentEnrolled(studentId, classId, b) {
-                Toast.makeText(this, "Enrollment Updated", Toast.LENGTH_SHORT).show()
+            if (b != enrolled) {
+                databaseUtil.setStudentEnrolled(studentId, classId, b) {
+                    Toast.makeText(this, "Enrollment Updated", Toast.LENGTH_SHORT).show()
+                }
+                enrolled = b
             }
         }
 
@@ -93,8 +105,12 @@ class Student_CheckIn : AppCompatActivity() {
         if (classInfo == null) return false
         if (classInfo!!.openSelectLocation) {
             startGeofence()
-            return inGeofence
+            binding.classLocationCheck.isChecked = inGeofence || inLocation
+            binding.classLocationCheck.isEnabled = true
+            return inGeofence || inLocation
         }
+        binding.classLocationCheck.isChecked = false
+        binding.classLocationCheck.isEnabled = false
         return true
     }
 
@@ -121,11 +137,7 @@ class Student_CheckIn : AppCompatActivity() {
         if (classInfo == null) return false
         val now = Date().time
 
-        // loop over all class times
-        val classStart = classInfo!!.time.time
-        val classEnd = classStart + duration
-
-        val timeok = (now in classStart..classEnd)
+        val timeok = (classInfo!!.times.find{ now in it.time .. it.time + duration } != null)
         binding.classTimeCheck.isChecked = timeok
 
         return timeok
@@ -137,8 +149,11 @@ class Student_CheckIn : AppCompatActivity() {
         val timeOk = checkTime()
         val enabled = (locationOk && activityOk && timeOk)
 
-        binding.classLocationCheck.isChecked = locationOk
-
+        if (enabled) {
+            binding.CheckInButton.setImageResource(R.drawable.check_mark_transparent_gif_4)
+        } else {
+            binding.CheckInButton.setImageResource(R.drawable.nocheckin)
+        }
         binding.CheckInButton.isEnabled = enabled
 
         if (autoCheckin && enabled)
@@ -245,6 +260,7 @@ class Student_CheckIn : AppCompatActivity() {
             return
 
         Log.d("Location", "Registering Geofence")
+        startLocationUpdates()
 
         val lat = classInfo!!.lat!!
         val lon = classInfo!!.lon!!
@@ -293,6 +309,7 @@ class Student_CheckIn : AppCompatActivity() {
         super.onResume()
         startTrackingActivity()  // Add this line
         startGeofence()
+        stopLocationUpdates()
         LocalBroadcastManager.getInstance(this).registerReceiver(activityUpdateReceiver, IntentFilter("ACTIVITY_RECOGNITION_UPDATE"))
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver, IntentFilter("GEOFENCE_UPDATE"))
     }
@@ -302,6 +319,61 @@ class Student_CheckIn : AppCompatActivity() {
         super.onPause()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(activityUpdateReceiver)
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver, IntentFilter("GEOFENCE_UPDATE"))
+        stopLocationUpdates()
+
     }
 
+
+    /// backup location receiver
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    @SuppressLint("MissingPermission") // checking with the locationPermissionGranted check
+    private fun startLocationUpdates() {
+        val locationRequest = LocationRequest.create()
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .setInterval(60000)
+            .setFastestInterval(10000)
+
+
+        fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+            .addOnSuccessListener { location: Location? -> processLocation(location) }
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null)
+        Log.d("Location", "Requested location updates")
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+    }
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            if (locationResult.locations.isNotEmpty())
+                processLocation(locationResult.lastLocation)
+        }
+    }
+
+    private var inLocation = false
+    private fun processLocation(location : Location?) {
+        if ((classInfo == null)||(location == null))
+            return
+        val lat1 = classInfo!!.lat
+        val lon1 = classInfo!!.lon
+        val lat2 = location.latitude
+        val lon2 = location.longitude
+        if (lat1 == null || lon1 == null)
+            return
+
+        val latdiff = lat2 - lat1
+        val londiff = lon2 - lon1
+        val distance = sqrt(latdiff*latdiff + londiff*londiff)
+        val distanceMeters = distance * 11139
+        inLocation = (distanceMeters <= GEOFENCE_RADIUS_IN_METERS)
+
+        enableCheckIn()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopLocationUpdates()
+    }
 }

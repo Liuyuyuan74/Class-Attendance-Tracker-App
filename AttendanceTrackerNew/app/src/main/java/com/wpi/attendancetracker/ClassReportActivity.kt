@@ -10,6 +10,7 @@ import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import java.util.Date
 
 class ClassReportActivity : AppCompatActivity() {
     private lateinit var classID : String
@@ -22,7 +23,7 @@ class ClassReportActivity : AppCompatActivity() {
 
     // These are our data query results
     private var checkIns : List<DatabaseUtil.CheckIn?>? = null
-    private var classes : List<DatabaseUtil.ClassInfo?>? = null
+    private var classInfo : DatabaseUtil.ClassInfo? = null
     private var enrollments : List<DatabaseUtil.Enrollment?>? = null
     private var totalCheckIns : Int = 0
     private var totalSessions : Int = 0
@@ -58,7 +59,7 @@ class ClassReportActivity : AppCompatActivity() {
     }
 
     private fun updateData() {
-        if (this.classes == null || this.enrollments == null || this.checkIns == null) {
+        if (this.classInfo == null || this.enrollments == null || this.checkIns == null) {
             return
         }
 
@@ -67,15 +68,31 @@ class ClassReportActivity : AppCompatActivity() {
                 checkInMap[it.studentID] = 0
         }
 
-        checkIns!!.forEach {
-            if (it != null) {
-                var count = checkInMap[it.studentID]
-                if (count == null) count = 0
-                count++
-                totalCheckIns++
-                checkInMap[it.studentID] = count
+        classInfo!!.times.forEach { classDate ->
+            // Go through each time, and check who checked in during that time
+            val classTime = classDate.time
+            val classTimeEnd = classDate.time + 90 * 60 * 1000 // assume 90 min class
+            if (classDate <= Date()) {
+                totalSessions++
+                // only count classes that are before now
+                enrollments!!.filterNotNull().forEach { student ->
+                    checkIns!!.filterNotNull().forEach { checkin ->
+                        // look only at this students' checkins
+                        if (checkin.studentID == student.studentID) {
+                            if (checkin.checkInTime.time in classTime..classTimeEnd) {
+                                // if it is during this class time, increment their checkins
+                                var count = checkInMap[checkin.studentID]
+                                if (count == null) count = 0
+                                count++
+                                totalCheckIns++
+                                checkInMap[checkin.studentID] = count
+                            }
+                        }
+                    }
+                }
             }
         }
+
     }
 
     private fun updateView() {
@@ -88,9 +105,9 @@ class ClassReportActivity : AppCompatActivity() {
         colors.add(Color.parseColor("#FF0000"))
         colors.add(Color.parseColor("#00FF00"))
 
-        val attended = checkInMap.count { it.value != 0 }
-        val missed = checkInMap.count { it.value == 0 }
-
+        val total = checkInMap.size * totalSessions
+        val attended = totalCheckIns
+        val missed = total - attended
 
         val pieEntries : ArrayList<PieEntry> = ArrayList()
         pieEntries.add(PieEntry(missed.toFloat(), "Missed"))
@@ -117,8 +134,8 @@ class ClassReportActivity : AppCompatActivity() {
         {
             val studentEmail = studentDetail.key
             val studentCheckins = studentDetail.value
-            classAttendanceList.add("$studentEmail $studentCheckins / sessions")
-            // todo need to compute how many sessions
+
+            classAttendanceList.add("$studentEmail $studentCheckins / $totalSessions")
         }
 
         listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, classAttendanceList)
@@ -127,7 +144,7 @@ class ClassReportActivity : AppCompatActivity() {
 
     private fun runQueries() {
         dbUtil.getClassCheckIns(classID) { setCheckIns(it) }
-        dbUtil.getAllClasses { setClasses(it) }
+        dbUtil.getClass(classID) { setClass(it) }
         dbUtil.getClassEnrollments(classID) { setEnrollments(it) }
     }
 
@@ -137,8 +154,8 @@ class ClassReportActivity : AppCompatActivity() {
         checkUpdate()
     }
 
-    private fun setClasses(classes: List<DatabaseUtil.ClassInfo?>?) {
-        this.classes = classes
+    private fun setClass(classInfo: DatabaseUtil.ClassInfo?) {
+        this.classInfo = classInfo
         dataElements++
         checkUpdate()
     }
